@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NF-Team — Global NFT Universe Builder</title>
+  <meta name="description" content="Create, remix, and collect AI-enhanced NFTs in a shared, ever-expanding universe. Real-time collaborative art, music, stories, and 3D — all in your browser." />
+  <meta name="keywords" content="NFT, collaborative, AI art, music, 3D, real-time, browser" />
+  <meta property="og:title" content="NF-Team — Global NFT Universe Builder" />
+  <meta property="og:description" content="A real-time, browser-only NFT universe where anyone can create, remix, and collect AI-enhanced digital assets." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ═══════════════ PARTICLE CANVAS (BACKGROUND) ═══════════════ -->
+  <canvas id="particle-bg"></canvas>
+
+  <!-- ═══════════════ NAVIGATION ═══════════════ -->
+  <nav id="main-nav" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="NF-Team Home">
+        <span class="logo-icon">◆</span>
+        <span class="logo-text">NF<span class="logo-accent">-Team</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#universe" class="nav-link active" data-section="universe">Universe</a></li>
+        <li><a href="#create" class="nav-link" data-section="create">Create</a></li>
+        <li><a href="#gallery" class="nav-link" data-section="gallery">Gallery</a></li>
+        <li><a href="#quests" class="nav-link" data-section="quests">Quests</a></li>
+        <li><a href="#profile" class="nav-link" data-section="profile">Profile</a></li>
+      </ul>
+      <div class="nav-actions">
+        <div id="peer-count" class="peer-indicator" aria-label="Connected peers">
+          <span class="peer-dot"></span>
+          <span class="peer-number">1</span> online
+        </div>
+        <button id="btn-connect-wallet" class="btn btn-primary btn-glow" aria-label="Connect Wallet">
+          <span class="btn-icon">⟐</span>
+          Connect Wallet
+        </button>
+      </div>
+      <button id="mobile-menu-toggle" class="mobile-menu-btn" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════════ HERO / LANDING ═══════════════ -->
+  <header id="hero" class="section hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">🌐 Real-Time · AI-Powered · Zero-Gas</div>
+      <h1 class="hero-title">
+        Build the <span class="text-gradient">NFT Universe</span><br />Together
+      </h1>
+      <p class="hero-subtitle">
+        Create AI‑enhanced art, music, stories & 3D objects in real time.
+        Mint them as zero‑gas NFTs. Watch the universe expand before your eyes.
+      </p>
+      <div class="hero-cta">
+        <button id="btn-enter-universe" class="btn btn-primary btn-large btn-glow">
+          Enter the Universe
+          <span class="btn-arrow">→</span>
+        </button>
+        <button id="btn-explore" class="btn btn-secondary btn-large">
+          Explore Gallery
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-value" id="stat-nfts">0</span>
+          <span class="stat-label">NFTs Minted</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-artists">0</span>
+          <span class="stat-label">Creators</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-zones">5</span>
+          <span class="stat-label">Biomes</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-remixes">0</span>
+          <span class="stat-label">Remixes</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div id="hero-orb" class="hero-orb"></div>
+    </div>
+  </header>
+
+  <!-- ═══════════════ ZONE SELECTOR ═══════════════ -->
+  <section id="zones" class="section zones-section">
+    <div class="section-header">
+      <h2 class="section-title">Choose Your <span class="text-gradient">Biome</span></h2>
+      <p class="section-desc">Each zone shapes the AI style applied to your creations</p>
+    </div>
+    <div class="zones-grid">
+      <button class="zone-card active" data-zone="neon-district" aria-label="Neon District zone">
+        <div class="zone-preview zone-neon"></div>
+        <div class="zone-info">
+          <span class="zone-icon">🌃</span>
+          <h3 class="zone-name">Neon District</h3>
+          <p class="zone-desc">Cyber-punk glitch, neon grids, rain reflections</p>
+        </div>
+        <div class="zone-glow"></div>
+      </button>
+      <button class="zone-card" data-zone="pixel-forest" aria-label="Pixel Forest zone">
+        <div class="zone-preview zone-pixel"></div>
+        <div class="zone-info">
+          <span class="zone-icon">🌿</span>
+          <h3 class="zone-name">Pixel Forest</h3>
+          <p class="zone-desc">8-bit greens, chunky foliage, chiptune birds</p>
+        </div>
+        <div class="zone-glow"></div>
+      </button>
+      <button class="zone-card" data-zone="molten-core" aria-label="Molten Core zone">
+        <div class="zone-preview zone-molten"></div>
+        <div class="zone-info">
+          <span class="zone-icon">🔥</span>
+          <h3 class="zone-name">Molten Core</h3>
+          <p class="zone-desc">Deep reds, lava gradients, ember particles</p>
+        </div>
+        <div class="zone-glow"></div>
+      </button>
+      <button class="zone-card" data-zone="cosmos-drift" aria-label="Cosmos Drift zone">
+        <div class="zone-preview zone-cosmos"></div>
+        <div class="zone-info">
+          <span class="zone-icon">🌌</span>
+          <h3 class="zone-name">Cosmos Drift</h3>
+          <p class="zone-desc">Deep space, nebula gradients, ambient drone</p>
+        </div>
+        <div class="zone-glow"></div>
+      </button>
+      <button class="zone-card" data-zone="marble-hall" aria-label="Marble Hall zone">
+        <div class="zone-preview zone-marble"></div>
+        <div class="zone-info">
+          <span class="zone-icon">🏛️</span>
+          <h3 class="zone-name">Marble Hall</h3>
+          <p class="zone-desc">Classical symmetry, gold accents, renaissance</p>
+        </div>
+        <div class="zone-glow"></div>
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══════════════ UNIVERSE GRAPH ═══════════════ -->
+  <section id="universe" class="section universe-section">
+    <div class="section-header">
+      <h2 class="section-title">The <span class="text-gradient">Universe</span></h2>
+      <p class="section-desc">Every node is an NFT. Every edge is a relationship. Watch it grow in real time.</p>
+    </div>
+    <div class="universe-container">
+      <canvas id="universe-canvas" aria-label="NFT Universe Graph visualization"></canvas>
+      <div id="universe-controls" class="glass-panel universe-controls">
+        <button id="btn-zoom-in" class="icon-btn" aria-label="Zoom in">+</button>
+        <button id="btn-zoom-out" class="icon-btn" aria-label="Zoom out">−</button>
+        <button id="btn-zoom-reset" class="icon-btn" aria-label="Reset zoom">⟲</button>
+        <div class="control-divider"></div>
+        <button id="btn-filter-image" class="icon-btn filter-btn active" aria-label="Filter images" data-type="image">🖼️</button>
+        <button id="btn-filter-music" class="icon-btn filter-btn active" aria-label="Filter music" data-type="music">🎵</button>
+        <button id="btn-filter-text" class="icon-btn filter-btn active" aria-label="Filter text" data-type="text">📝</button>
+        <button id="btn-filter-mesh" class="icon-btn filter-btn active" aria-label="Filter 3D" data-type="mesh">🧊</button>
+        <button id="btn-filter-fusion" class="icon-btn filter-btn active" aria-label="Filter fusions" data-type="fusion">🌐</button>
+      </div>
+      <div id="node-detail" class="glass-panel node-detail hidden">
+        <button id="btn-close-detail" class="icon-btn close-btn" aria-label="Close detail">✕</button>
+        <div class="detail-header">
+          <div id="detail-preview" class="detail-preview"></div>
+          <div class="detail-meta">
+            <h3 id="detail-title" class="detail-title">—</h3>
+            <span id="detail-type" class="detail-type-badge">image</span>
+            <span id="detail-zone" class="detail-zone-badge">neon-district</span>
+          </div>
+        </div>
+        <div class="detail-stats">
+          <div class="detail-stat"><span class="stat-icon">👁️</span><span id="detail-views">0</span> views</div>
+          <div class="detail-stat"><span class="stat-icon">🔀</span><span id="detail-forks">0</span> forks</div>
+          <div class="detail-stat"><span class="stat-icon">🔁</span><span id="detail-remixes">0</span> remixes</div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-small btn-primary" id="btn-fork-nft">Fork</button>
+          <button class="btn btn-small btn-secondary" id="btn-remix-nft">Remix</button>
+          <button class="btn btn-small btn-secondary" id="btn-download-nft">Download</button>
+        </div>
+        <div id="detail-provenance" class="detail-provenance">
+          <h4>Provenance</h4>
+          <div id="provenance-tree" class="provenance-tree"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ CREATE STUDIO ═══════════════ -->
+  <section id="create" class="section create-section">
+    <div class="section-header">
+      <h2 class="section-title">Creation <span class="text-gradient">Studio</span></h2>
+      <p class="section-desc">Choose a medium, create your masterpiece, and mint it instantly</p>
+    </div>
+
+    <!-- Studio Tabs -->
+    <div class="studio-tabs">
+      <button class="studio-tab active" data-studio="canvas" aria-label="Art Canvas studio">
+        <span class="tab-icon">🎨</span>
+        <span class="tab-label">Art Canvas</span>
+      </button>
+      <button class="studio-tab" data-studio="music" aria-label="Music Jam studio">
+        <span class="tab-icon">🎵</span>
+        <span class="tab-label">Music Jam</span>
+      </button>
+      <button class="studio-tab" data-studio="story" aria-label="Story Builder studio">
+        <span class="tab-icon">📝</span>
+        <span class="tab-label">Story Builder</span>
+      </button>
+      <button class="studio-tab" data-studio="mesh" aria-label="3D Forge studio">
+        <span class="tab-icon">🧊</span>
+        <span class="tab-label">3D Forge</span>
+      </button>
+      <button class="studio-tab" data-studio="fusion" aria-label="Fusion Lab">
+        <span class="tab-icon">⚡</span>
+        <span class="tab-label">Fusion Lab</span>
+      </button>
+    </div>
+
+    <!-- ──── Canvas Studio ──── -->
+    <div id="studio-canvas" class="studio-panel active">
+      <div class="studio-layout">
+        <div class="studio-toolbar glass-panel">
+          <div class="tool-group">
+            <label class="tool-label">Brush</label>
+            <input type="range" id="brush-size" min="1" max="50" value="8" class="slider" aria-label="Brush size" />
+            <span id="brush-size-val" class="tool-value">8</span>
+          </div>
+          <div class="tool-group">
+            <label class="tool-label">Opacity</label>
+            <input type="range" id="brush-opacity" min="0.1" max="1" step="0.1" value="1" class="slider" aria-label="Brush opacity" />
+            <span id="brush-opacity-val" class="tool-value">100%</span>
+          </div>
+          <div class="tool-group">
+            <label class="tool-label">Color</label>
+            <input type="color" id="brush-color" value="#00f9ff" class="color-picker" aria-label="Brush color" />
+          </div>
+          <div class="tool-group">
+            <label class="tool-label">AI Style</label>
+            <select id="style-select" class="select" aria-label="AI style transfer preset">
+              <option value="none">None (Raw)</option>
+              <option value="neon" selected>Neon Glitch</option>
+              <option value="pixel">Pixel Retro</option>
+              <option value="watercolor">Watercolor</option>
+              <option value="impasto">Oil Impasto</option>
+              <option value="sketch">Renaissance Sketch</option>
+            </select>
+          </div>
+          <div class="tool-actions">
+            <button id="btn-undo" class="icon-btn" aria-label="Undo">↩</button>
+            <button id="btn-redo" class="icon-btn" aria-label="Redo">↪</button>
+            <button id="btn-clear-canvas" class="icon-btn" aria-label="Clear canvas">🗑️</button>
+          </div>
+        </div>
+        <div class="studio-canvas-wrapper">
+          <canvas id="draw-canvas" class="draw-canvas" width="1024" height="768" aria-label="Drawing canvas"></canvas>
+          <canvas id="overlay-canvas" class="overlay-canvas" width="1024" height="768" aria-label="AI style overlay"></canvas>
+        </div>
+        <div class="studio-sidebar glass-panel">
+          <h3 class="sidebar-title">Layers</h3>
+          <div id="layer-list" class="layer-list">
+            <div class="layer-item active">
+              <span class="layer-visibility">👁️</span>
+              <span class="layer-name">Layer 1</span>
+            </div>
+          </div>
+          <button id="btn-add-layer" class="btn btn-small btn-secondary">+ Add Layer</button>
+          <div class="sidebar-divider"></div>
+          <h3 class="sidebar-title">Participants</h3>
+          <div id="canvas-participants" class="participant-list">
+            <div class="participant-item">
+              <div class="participant-avatar" style="background: linear-gradient(135deg, #00f9ff, #7b2ff7)"></div>
+              <span class="participant-name">You</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="studio-footer">
+        <div class="footer-info">
+          <span id="canvas-dimensions">1024 × 768</span>
+          <span id="canvas-cursor-pos">0, 0</span>
+        </div>
+        <div class="footer-actions">
+          <button id="btn-mint-canvas" class="btn btn-primary btn-glow">
+            <span class="btn-icon">◆</span> Mint as NFT
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──── Music Studio ──── -->
+    <div id="studio-music" class="studio-panel">
+      <div class="music-layout">
+        <div class="music-controls glass-panel">
+          <div class="music-transport">
+            <button id="btn-music-record" class="icon-btn record-btn" aria-label="Record">⏺</button>
+            <button id="btn-music-play" class="icon-btn" aria-label="Play">▶</button>
+            <button id="btn-music-stop" class="icon-btn" aria-label="Stop">⏹</button>
+          </div>
+          <div class="music-settings">
+            <div class="tool-group">
+              <label class="tool-label">BPM</label>
+              <input type="number" id="music-bpm" value="120" min="60" max="200" class="input-small" aria-label="Beats per minute" />
+            </div>
+            <div class="tool-group">
+              <label class="tool-label">Key</label>
+              <select id="music-key" class="select" aria-label="Musical key">
+                <option value="C">C Major</option>
+                <option value="Am">A Minor</option>
+                <option value="G">G Major</option>
+                <option value="Em">E Minor</option>
+                <option value="F">F Major</option>
+                <option value="Dm">D Minor</option>
+              </select>
+            </div>
+            <div class="tool-group">
+              <label class="tool-label">Instrument</label>
+              <select id="music-instrument" class="select" aria-label="Instrument">
+                <option value="synth">Synth Pad</option>
+                <option value="piano">Piano</option>
+                <option value="bass">Bass</option>
+                <option value="drums">Drums</option>
+              </select>
+            </div>
+          </div>
+          <button id="btn-ai-extend" class="btn btn-secondary">
+            <span class="btn-icon">🤖</span> AI Extend Loop
+          </button>
+        </div>
+        <div class="music-visualizer-wrapper">
+          <canvas id="music-visualizer" class="music-visualizer" aria-label="Music frequency visualizer"></canvas>
+        </div>
+        <div class="music-timeline">
+          <div id="music-tracks" class="track-container">
+            <div class="track">
+              <div class="track-header">
+                <span class="track-name">Track 1</span>
+                <button class="icon-btn mute-btn" aria-label="Mute track">🔊</button>
+              </div>
+              <div class="track-waveform">
+                <canvas class="waveform-canvas" aria-label="Track 1 waveform"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="studio-footer">
+        <div class="footer-info">
+          <span id="music-time">0:00 / 0:00</span>
+        </div>
+        <div class="footer-actions">
+          <button id="btn-mint-music" class="btn btn-primary btn-glow">
+            <span class="btn-icon">◆</span> Mint as NFT
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──── Story Studio ──── -->
+    <div id="studio-story" class="studio-panel">
+      <div class="story-layout">
+        <div class="story-editor glass-panel">
+          <div class="story-toolbar">
+            <input type="text" id="story-title" class="story-title-input" placeholder="Untitled Story…" aria-label="Story title" />
+            <div class="story-meta">
+              <span id="story-word-count">0 words</span>
+              <span id="story-char-count">0 characters</span>
+            </div>
+          </div>
+          <div id="story-content" class="story-content" contenteditable="true" aria-label="Story text editor" data-placeholder="Begin your story here… Press Enter after a paragraph for AI suggestions."></div>
+        </div>
+        <div class="story-sidebar glass-panel">
+          <h3 class="sidebar-title">AI Suggestions</h3>
+          <div id="ai-suggestions" class="suggestion-list">
+            <div class="suggestion-placeholder">
+              <span class="suggestion-icon">✨</span>
+              <p>Write a paragraph and press Enter to receive AI-generated story continuations.</p>
+            </div>
+          </div>
+          <div class="sidebar-divider"></div>
+          <h3 class="sidebar-title">Story Settings</h3>
+          <div class="tool-group">
+            <label class="tool-label">Genre</label>
+            <select id="story-genre" class="select" aria-label="Story genre">
+              <option value="fantasy">Fantasy</option>
+              <option value="scifi">Sci-Fi</option>
+              <option value="horror">Horror</option>
+              <option value="romance">Romance</option>
+              <option value="mystery">Mystery</option>
+            </select>
+          </div>
+          <div class="tool-group">
+            <label class="tool-label">Tone</label>
+            <select id="story-tone" class="select" aria-label="Story tone">
+              <option value="epic">Epic</option>
+              <option value="whimsical">Whimsical</option>
+              <option value="dark">Dark</option>
+              <option value="humorous">Humorous</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="studio-footer">
+        <div class="footer-info">
+          <span id="story-status">Ready</span>
+        </div>
+        <div class="footer-actions">
+          <button id="btn-mint-story" class="btn btn-primary btn-glow">
+            <span class="btn-icon">◆</span> Mint as NFT
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──── 3D Forge Studio ──── -->
+    <div id="studio-mesh" class="studio-panel">
+      <div class="mesh-layout">
+        <div class="mesh-controls glass-panel">
+          <div class="tool-group">
+            <label class="tool-label">Shape Seed</label>
+            <input type="range" id="mesh-seed" min="0" max="1000" value="42" class="slider" aria-label="Shape seed" />
+            <span id="mesh-seed-val" class="tool-value">42</span>
+          </div>
+          <div class="tool-group">
+            <label class="tool-label">Complexity</label>
+            <input type="range" id="mesh-complexity" min="1" max="10" value="5" class="slider" aria-label="Mesh complexity" />
+            <span id="mesh-complexity-val" class="tool-value">5</span>
+          </div>
+          <div class="tool-group">
+            <label class="tool-label">Color Palette</label>
+            <select id="mesh-palette" class="select" aria-label="Color palette">
+              <option value="zone">Zone Default</option>
+              <option value="neon">Neon Glow</option>
+              <option value="earth">Earth Tones</option>
+              <option value="pastel">Pastel Dream</option>
+              <option value="monochrome">Monochrome</option>
+            </select>
+          </div>
+          <button id="btn-generate-mesh" class="btn btn-secondary btn-glow">
+            <span class="btn-icon">🤖</span> Generate 3D Object
+          </button>
+        </div>
+        <div class="mesh-viewport-wrapper">
+          <canvas id="mesh-viewport" class="mesh-viewport" aria-label="3D object viewport"></canvas>
+          <div class="mesh-overlay-info glass-panel">
+            <span id="mesh-poly-count">Polygons: —</span>
+            <span id="mesh-vertex-count">Vertices: —</span>
+          </div>
+        </div>
+      </div>
+      <div class="studio-footer">
+        <div class="footer-info">
+          <span id="mesh-status">Adjust parameters and generate</span>
+        </div>
+        <div class="footer-actions">
+          <button id="btn-mint-mesh" class="btn btn-primary btn-glow">
+            <span class="btn-icon">◆</span> Mint as NFT
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──── Fusion Lab ──── -->
+    <div id="studio-fusion" class="studio-panel">
+      <div class="fusion-layout">
+        <div class="fusion-slots">
+          <div class="fusion-slot glass-panel" id="fusion-slot-a" aria-label="Fusion input A">
+            <div class="slot-placeholder">
+              <span class="slot-icon">+</span>
+              <p>Drag an NFT here<br /><small>or click to browse</small></p>
+            </div>
+          </div>
+          <div class="fusion-operator">
+            <span class="fusion-plus">⚡</span>
+            <span class="fusion-label">FUSE</span>
+          </div>
+          <div class="fusion-slot glass-panel" id="fusion-slot-b" aria-label="Fusion input B">
+            <div class="slot-placeholder">
+              <span class="slot-icon">+</span>
+              <p>Drag an NFT here<br /><small>or click to browse</small></p>
+            </div>
+          </div>
+          <div class="fusion-operator">
+            <span class="fusion-arrow">→</span>
+          </div>
+          <div class="fusion-result glass-panel" id="fusion-result" aria-label="Fusion result">
+            <div class="slot-placeholder">
+              <span class="slot-icon">✨</span>
+              <p>Fused NFT<br /><small>appears here</small></p>
+            </div>
+          </div>
+        </div>
+        <div class="fusion-options glass-panel">
+          <h3 class="sidebar-title">Fusion Settings</h3>
+          <div class="tool-group">
+            <label class="tool-label">Blend Mode</label>
+            <select id="fusion-blend" class="select" aria-label="Fusion blend mode">
+              <option value="overlay">Overlay</option>
+              <option value="multiply">Multiply</option>
+              <option value="screen">Screen</option>
+              <option value="dissolve">Dissolve</option>
+            </select>
+          </div>
+          <div class="tool-group">
+            <label class="tool-label">Intensity</label>
+            <input type="range" id="fusion-intensity" min="0" max="100" value="75" class="slider" aria-label="Fusion intensity" />
+            <span id="fusion-intensity-val" class="tool-value">75%</span>
+          </div>
+          <button id="btn-fuse" class="btn btn-primary btn-glow btn-full">
+            <span class="btn-icon">⚡</span> Fuse NFTs
+          </button>
+        </div>
+      </div>
+      <div class="studio-footer">
+        <div class="footer-info">
+          <span id="fusion-status">Select two NFTs to fuse</span>
+        </div>
+        <div class="footer-actions">
+          <button id="btn-mint-fusion" class="btn btn-primary btn-glow" disabled>
+            <span class="btn-icon">◆</span> Mint Fusion NFT
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ GALLERY ═══════════════ -->
+  <section id="gallery" class="section gallery-section">
+    <div class="section-header">
+      <h2 class="section-title">NFT <span class="text-gradient">Gallery</span></h2>
+      <p class="section-desc">Browse all minted creations across the universe</p>
+    </div>
+    <div class="gallery-filters">
+      <button class="filter-chip active" data-filter="all">All</button>
+      <button class="filter-chip" data-filter="image">🖼️ Art</button>
+      <button class="filter-chip" data-filter="music">🎵 Music</button>
+      <button class="filter-chip" data-filter="text">📝 Stories</button>
+      <button class="filter-chip" data-filter="mesh">🧊 3D</button>
+      <button class="filter-chip" data-filter="fusion">⚡ Fusions</button>
+      <button class="filter-chip" data-filter="badge">🏅 Badges</button>
+    </div>
+    <div id="gallery-grid" class="gallery-grid">
+      <!-- NFT cards injected by JS -->
+      <div class="gallery-empty">
+        <span class="empty-icon">🎨</span>
+        <p>No NFTs minted yet. Head to the <a href="#create">Creation Studio</a> to get started!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ QUESTS ═══════════════ -->
+  <section id="quests" class="section quests-section">
+    <div class="section-header">
+      <h2 class="section-title">Quests & <span class="text-gradient">Achievements</span></h2>
+      <p class="section-desc">Complete creative challenges to earn rare badge NFTs</p>
+    </div>
+    <div class="quests-grid">
+      <div class="quest-card glass-panel" data-quest="daily-3color">
+        <div class="quest-icon-wrap"><span class="quest-icon">🎯</span></div>
+        <div class="quest-info">
+          <h3 class="quest-name">Three‑Color Challenge</h3>
+          <p class="quest-desc">Create an artwork using only 3 colors</p>
+          <div class="quest-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+            <span class="progress-text">0 / 1</span>
+          </div>
+        </div>
+        <div class="quest-reward">
+          <span class="reward-badge">🥉</span>
+          <span class="reward-label">Bronze Badge</span>
+        </div>
+      </div>
+      <div class="quest-card glass-panel" data-quest="collab-remix">
+        <div class="quest-icon-wrap"><span class="quest-icon">🤝</span></div>
+        <div class="quest-info">
+          <h3 class="quest-name">Remix a Stranger</h3>
+          <p class="quest-desc">Fork or remix another creator's NFT</p>
+          <div class="quest-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+            <span class="progress-text">0 / 1</span>
+          </div>
+        </div>
+        <div class="quest-reward">
+          <span class="reward-badge">🥈</span>
+          <span class="reward-label">Silver Badge</span>
+        </div>
+      </div>
+      <div class="quest-card glass-panel" data-quest="zone-explorer">
+        <div class="quest-icon-wrap"><span class="quest-icon">🌍</span></div>
+        <div class="quest-info">
+          <h3 class="quest-name">Zone Explorer</h3>
+          <p class="quest-desc">Create at least one NFT in every biome</p>
+          <div class="quest-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+            <span class="progress-text">0 / 5</span>
+          </div>
+        </div>
+        <div class="quest-reward">
+          <span class="reward-badge">🥇</span>
+          <span class="reward-label">Gold Badge</span>
+        </div>
+      </div>
+      <div class="quest-card glass-panel" data-quest="streak-7">
+        <div class="quest-icon-wrap"><span class="quest-icon">🔥</span></div>
+        <div class="quest-info">
+          <h3 class="quest-name">7‑Day Streak</h3>
+          <p class="quest-desc">Mint something 7 days in a row</p>
+          <div class="quest-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+            <span class="progress-text">0 / 7</span>
+          </div>
+        </div>
+        <div class="quest-reward">
+          <span class="reward-badge">💎</span>
+          <span class="reward-label">Platinum Badge</span>
+        </div>
+      </div>
+      <div class="quest-card glass-panel" data-quest="influence-10">
+        <div class="quest-icon-wrap"><span class="quest-icon">👑</span></div>
+        <div class="quest-info">
+          <h3 class="quest-name">Influencer</h3>
+          <p class="quest-desc">Have your work forked 10 times</p>
+          <div class="quest-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+            <span class="progress-text">0 / 10</span>
+          </div>
+        </div>
+        <div class="quest-reward">
+          <span class="reward-badge">💎</span>
+          <span class="reward-label">Diamond Badge</span>
+        </div>
+      </div>
+      <div class="quest-card glass-panel" data-quest="fusion-master">
+        <div class="quest-icon-wrap"><span class="quest-icon">⚡</span></div>
+        <div class="quest-info">
+          <h3 class="quest-name">Fusion Master</h3>
+          <p class="quest-desc">Create 3 fusion NFTs from different media types</p>
+          <div class="quest-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+            <span class="progress-text">0 / 3</span>
+          </div>
+        </div>
+        <div class="quest-reward">
+          <span class="reward-badge">🏆</span>
+          <span class="reward-label">Gold Badge</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ PROFILE ═══════════════ -->
+  <section id="profile" class="section profile-section">
+    <div class="section-header">
+      <h2 class="section-title">Your <span class="text-gradient">Profile</span></h2>
+    </div>
+    <div class="profile-layout">
+      <div class="profile-card glass-panel">
+        <div id="profile-avatar" class="profile-avatar"></div>
+        <h3 id="profile-name" class="profile-name">Anonymous Creator</h3>
+        <p id="profile-address" class="profile-address">Not connected</p>
+        <div class="profile-stats-grid">
+          <div class="profile-stat">
+            <span class="profile-stat-value" id="profile-minted">0</span>
+            <span class="profile-stat-label">Minted</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat-value" id="profile-forks-received">0</span>
+            <span class="profile-stat-label">Forks Received</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat-value" id="profile-remixes-received">0</span>
+            <span class="profile-stat-label">Remixes</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat-value" id="profile-influence">0</span>
+            <span class="profile-stat-label">Influence</span>
+          </div>
+        </div>
+        <div class="profile-badges">
+          <h4>Badges Earned</h4>
+          <div id="profile-badge-list" class="badge-list">
+            <p class="badge-empty">Complete quests to earn badges!</p>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button id="btn-export-ledger" class="btn btn-secondary btn-full">📥 Export Ledger</button>
+          <button id="btn-import-ledger" class="btn btn-secondary btn-full">📤 Import Ledger</button>
+        </div>
+      </div>
+      <div class="profile-collection">
+        <h3 class="collection-title">Your Collection</h3>
+        <div id="profile-nft-grid" class="gallery-grid">
+          <div class="gallery-empty">
+            <span class="empty-icon">📦</span>
+            <p>Your minted NFTs will appear here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ TIME CAPSULE MODAL ═══════════════ -->
+  <div id="capsule-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content glass-panel">
+      <button class="modal-close icon-btn" aria-label="Close modal">✕</button>
+      <h2 class="modal-title">🔒 Create Time Capsule</h2>
+      <p class="modal-desc">Lock this NFT for a set duration. Nobody can view, fork, or remix it until the timer expires.</p>
+      <div class="modal-body">
+        <div class="tool-group">
+          <label class="tool-label">Lock Duration</label>
+          <select id="capsule-duration" class="select" aria-label="Capsule duration">
+            <option value="60000">1 Minute (demo)</option>
+            <option value="86400000">1 Day</option>
+            <option value="604800000">1 Week</option>
+            <option value="2592000000">1 Month</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-lock-capsule" class="btn btn-primary btn-glow">Lock Capsule</button>
+        <button class="btn btn-secondary modal-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ MINT SUCCESS TOAST ═══════════════ -->
+  <div id="mint-toast" class="toast hidden" aria-live="polite">
+    <div class="toast-content glass-panel">
+      <span class="toast-icon">◆</span>
+      <div class="toast-text">
+        <strong>NFT Minted!</strong>
+        <span id="toast-detail">Your creation has been added to the universe.</span>
+      </div>
+      <button class="toast-close icon-btn" aria-label="Close notification">✕</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer id="site-footer" class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo-icon">◆</span>
+        <span class="logo-text">NF<span class="logo-accent">-Team</span></span>
+        <p class="footer-tagline">Building the NFT Universe, together.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Platform</h4>
+          <a href="#universe">Universe</a>
+          <a href="#create">Create</a>
+          <a href="#gallery">Gallery</a>
+          <a href="#quests">Quests</a>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <a href="#">Documentation</a>
+          <a href="#">API Reference</a>
+          <a href="#">Changelog</a>
+        </div>
+        <div class="footer-col">
+          <h4>Community</h4>
+          <a href="#">Discord</a>
+          <a href="#">Twitter / X</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 NF-Team. All rights reserved. Zero-gas, zero-compromise.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
