@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NF-Team — Profile</title>
+  <meta name="description" content="Your NF-Team creator profile. View your minted NFTs, badges, stats, and manage your wallet." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── Profile Page ── */
+    .profile-page-body {
+      padding-top: var(--nav-height);
+    }
+
+    .profile-section {
+      min-height: calc(100vh - var(--nav-height));
+      padding: var(--space-xl) var(--space-lg);
+    }
+
+    .profile-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: var(--space-xl);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ── Profile Card ── */
+    .profile-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px);
+      border: var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      text-align: center;
+      position: sticky;
+      top: calc(var(--nav-height) + var(--space-lg));
+      height: fit-content;
+    }
+
+    .profile-avatar-large {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 0 auto var(--space-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      border: 3px solid rgba(0,249,255,0.2);
+      box-shadow: 0 0 30px rgba(0,249,255,0.1);
+    }
+
+    .profile-name {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .profile-email {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-lg);
+    }
+
+    .profile-joined {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-lg);
+    }
+
+    .profile-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+
+    .profile-stat {
+      background: rgba(255,255,255,0.03);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+    }
+
+    .profile-stat-value {
+      display: block;
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .profile-stat-label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+
+    /* ── Badges ── */
+    .profile-badges {
+      text-align: left;
+      margin-bottom: var(--space-lg);
+    }
+
+    .profile-badges h4 {
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: var(--space-sm);
+    }
+
+    .badge-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .badge-empty {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Actions ── */
+    .profile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    /* ── Collection ── */
+    .profile-collection {
+      min-width: 0;
+    }
+
+    .collection-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-lg);
+    }
+
+    .collection-title {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .collection-count {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .collection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: var(--space-md);
+    }
+
+    .collection-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-3xl) var(--space-xl);
+      text-align: center;
+      background: rgba(255,255,255,0.02);
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: var(--radius-xl);
+    }
+
+    .collection-empty .empty-icon {
+      font-size: 3rem;
+      opacity: 0.4;
+      margin-bottom: var(--space-md);
+    }
+
+    .collection-empty p {
+      color: var(--text-muted);
+      max-width: 360px;
+    }
+
+    /* ── Wallet connection ── */
+    .wallet-section {
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .wallet-address {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      word-break: break-all;
+      margin-top: var(--space-xs);
+    }
+
+    /* ── Mini NFT card (profile) ── */
+    .nft-mini-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .nft-mini-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--glass-shadow);
+      border-color: rgba(0,249,255,0.2);
+    }
+
+    .nft-mini-preview {
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .nft-mini-info {
+      padding: var(--space-sm) var(--space-md);
+    }
+
+    .nft-mini-title {
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nft-mini-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .profile-layout {
+        grid-template-columns: 1fr;
+      }
+      .profile-card {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body class="profile-page-body">
+  <canvas id="particle-bg"></canvas>
+
+  <!-- Navigation -->
+  <div id="nav-root"></div>
+
+  <!-- ═══════════════ PROFILE ═══════════════ -->
+  <section id="profile" class="section profile-section">
+    <div class="section-header">
+      <h1 class="section-title">Your <span class="text-gradient">Profile</span></h1>
+      <p class="section-desc">Manage your identity, collection, and wallet</p>
+    </div>
+
+    <div class="profile-layout">
+      <!-- Left: Profile Card -->
+      <div class="profile-card glass-panel">
+        <div id="profile-avatar" class="profile-avatar-large" style="background: linear-gradient(135deg, #00f9ff, #7b2ff7)">
+        </div>
+        <h2 class="profile-name" id="profile-name">Anonymous Creator</h2>
+        <p class="profile-email" id="profile-email">—</p>
+        <p class="profile-joined" id="profile-joined">—</p>
+
+        <div class="profile-stats-grid">
+          <div class="profile-stat">
+            <span class="profile-stat-value" id="profile-minted">0</span>
+            <span class="profile-stat-label">Minted</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat-value" id="profile-forks-received">0</span>
+            <span class="profile-stat-label">Forks</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat-value" id="profile-remixes-received">0</span>
+            <span class="profile-stat-label">Remixes</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat-value" id="profile-influence">0</span>
+            <span class="profile-stat-label">Influence</span>
+          </div>
+        </div>
+
+        <div class="profile-badges">
+          <h4>Badges Earned</h4>
+          <div id="profile-badge-list" class="badge-list">
+            <p class="badge-empty">Complete quests to earn badges!</p>
+          </div>
+        </div>
+
+        <div class="wallet-section">
+          <button id="btn-connect-wallet" class="btn btn-primary btn-glow btn-full">
+            <span class="btn-icon">⟐</span> Connect Wallet
+          </button>
+          <p class="wallet-address" id="profile-address">Not connected</p>
+        </div>
+
+        <div class="profile-actions" style="margin-top: var(--space-md);">
+          <button id="btn-export-ledger" class="btn btn-secondary btn-full">📥 Export Ledger</button>
+          <button id="btn-import-ledger" class="btn btn-secondary btn-full">📤 Import Ledger</button>
+        </div>
+      </div>
+
+      <!-- Right: Collection -->
+      <div class="profile-collection">
+        <div class="collection-header">
+          <h3 class="collection-title">Your Collection</h3>
+          <span class="collection-count" id="collection-count">0 items</span>
+        </div>
+        <div id="profile-nft-grid" class="collection-grid">
+          <div class="collection-empty">
+            <span class="empty-icon">📦</span>
+            <p>Your minted NFTs will appear here. Head to the Creation Studio to get started!</p>
+            <a href="create.html" class="btn btn-primary btn-glow" style="margin-top: var(--space-md);">Start Creating →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div id="footer-root"></div>
+
+  <!-- Toast -->
+  <div id="toast-root"></div>
+
+  <script src="shared.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Auth guard
+    const user = requireAuth();
+
+    // Inject nav, footer, toast
+    document.getElementById('nav-root').innerHTML = getNavHTML('profile');
+    document.getElementById('footer-root').innerHTML = getFooterHTML();
+    document.getElementById('toast-root').innerHTML = getToastHTML();
+
+    // Init
+    initParticles();
+    initNav('profile');
+    initPeerCount();
+
+    // ── Profile Logic ──
+    (function() {
+      if (!user) return;
+
+      // Populate user info
+      const avatarEl = document.getElementById('profile-avatar');
+      if (user.avatar) avatarEl.style.background = user.avatar;
+      avatarEl.textContent = user.username ? user.username.charAt(0).toUpperCase() : '?';
+
+      document.getElementById('profile-name').textContent = user.username || 'Anonymous';
+      document.getElementById('profile-email').textContent = user.email || '—';
+
+      if (user.loggedInAt) {
+        const d = new Date(user.loggedInAt);
+        document.getElementById('profile-joined').textContent = `Joined ${d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`;
+      }
+
+      // Load tokens for collection
+      const tokens = JSON.parse(localStorage.getItem('nf-team-tokens') || '[]');
+      document.getElementById('profile-minted').textContent = tokens.length;
+      document.getElementById('collection-count').textContent = `${tokens.length} items`;
+
+      // Calculate stats
+      const totalViews = tokens.reduce((s, t) => s + (t.interactions?.views || 0), 0);
+      const totalForks = tokens.reduce((s, t) => s + (t.interactions?.forks || 0), 0);
+      const totalRemixes = tokens.reduce((s, t) => s + (t.interactions?.remixes || 0), 0);
+      document.getElementById('profile-forks-received').textContent = totalForks;
+      document.getElementById('profile-remixes-received').textContent = totalRemixes;
+      document.getElementById('profile-influence').textContent = totalViews + totalForks * 5 + totalRemixes * 10;
+
+      // Render collection
+      const grid = document.getElementById('profile-nft-grid');
+      const zoneColors = {
+        'neon-district': ['#00f9ff', '#7b2ff7'],
+        'pixel-forest': ['#3ba55c', '#85d660'],
+        'molten-core': ['#e74c3c', '#f39c12'],
+        'cosmos-drift': ['#5b47d0', '#c46bdf'],
+        'marble-hall': ['#c5a55a', '#e8d5a3'],
+      };
+      const typeIcons = { image: '🖼️', music: '🎵', text: '📝', mesh: '🧊', fusion: '⚡' };
+
+      if (tokens.length > 0) {
+        grid.innerHTML = '';
+        tokens.forEach(token => {
+          const colors = zoneColors[token.zone] || zoneColors['neon-district'];
+          const card = document.createElement('div');
+          card.className = 'nft-mini-card';
+          card.innerHTML = `
+            <div class="nft-mini-preview" style="background: linear-gradient(135deg, ${colors[0]}30, ${colors[1]}30)">
+              ${typeIcons[token.type] || '◆'}
+            </div>
+            <div class="nft-mini-info">
+              <div class="nft-mini-title">${token.metadata?.title || 'Untitled'}</div>
+              <div class="nft-mini-meta">
+                <span>${token.type}</span>
+                <span>${token.zone?.replace(/-/g, ' ') || '—'}</span>
+              </div>
+            </div>`;
+          grid.appendChild(card);
+        });
+      }
+
+      // Badges
+      const badgeList = document.getElementById('profile-badge-list');
+      const badges = [];
+      if (tokens.length >= 1) badges.push({ icon: '🌟', label: 'First Mint' });
+      if (tokens.length >= 5) badges.push({ icon: '🎨', label: 'Prolific Creator' });
+      if (tokens.length >= 10) badges.push({ icon: '💎', label: 'Diamond Hands' });
+      if (tokens.some(t => t.type === 'fusion')) badges.push({ icon: '⚡', label: 'Fusion Master' });
+      if (tokens.some(t => t.type === 'mesh')) badges.push({ icon: '🧊', label: '3D Pioneer' });
+
+      if (badges.length > 0) {
+        badgeList.innerHTML = badges.map(b => `
+          <span class="badge-item">${b.icon} ${b.label}</span>
+        `).join('');
+      }
+
+      // Wallet connection
+      const walletBtn = document.getElementById('btn-connect-wallet');
+      const addressEl = document.getElementById('profile-address');
+      let walletConnected = false;
+      let walletAddress = null;
+
+      walletBtn.addEventListener('click', () => {
+        if (walletConnected) {
+          walletConnected = false;
+          walletAddress = null;
+          walletBtn.innerHTML = '<span class="btn-icon">⟐</span> Connect Wallet';
+          walletBtn.classList.remove('btn-secondary');
+          walletBtn.classList.add('btn-primary');
+          addressEl.textContent = 'Not connected';
+          return;
+        }
+
+        const id = Array.from(crypto.getRandomValues(new Uint8Array(20)))
+          .map(b => b.toString(16).padStart(2, '0')).join('');
+        walletAddress = '0x' + id;
+        walletConnected = true;
+
+        walletBtn.innerHTML = `<span class="btn-icon">◆</span> ${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}`;
+        walletBtn.classList.remove('btn-primary');
+        walletBtn.classList.add('btn-secondary');
+        addressEl.textContent = walletAddress;
+
+        showToast('Wallet Connected!', `Address: ${walletAddress.slice(0, 10)}…`);
+      });
+
+      // Export/Import
+      document.getElementById('btn-export-ledger').addEventListener('click', () => {
+        const data = JSON.stringify(tokens, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'nf-team-ledger.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Ledger Exported', `${tokens.length} tokens saved.`);
+      });
+
+      document.getElementById('btn-import-ledger').addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            try {
+              const imported = JSON.parse(reader.result);
+              localStorage.setItem('nf-team-tokens', JSON.stringify(imported));
+              showToast('Ledger Imported', `${imported.length} tokens loaded. Refreshing…`);
+              setTimeout(() => location.reload(), 1000);
+            } catch {
+              showToast('Import Error', 'Invalid JSON file.');
+            }
+          };
+          reader.readAsText(file);
+        };
+        input.click();
+      });
+    })();
+  </script>
+</body>
+</html>

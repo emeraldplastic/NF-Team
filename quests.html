@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NF-Team — Quests & Challenges</title>
+  <meta name="description" content="Complete creative quests and challenges to earn badges and XP in the NF-Team universe." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── Quests Page ── */
+    .quests-page-body {
+      padding-top: var(--nav-height);
+    }
+
+    .quests-section {
+      min-height: calc(100vh - var(--nav-height));
+      padding: var(--space-xl) var(--space-lg);
+    }
+
+    /* ── XP Progress Bar ── */
+    .xp-bar-wrapper {
+      max-width: 700px;
+      margin: 0 auto var(--space-2xl);
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      border: var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-lg) var(--space-xl);
+    }
+
+    .xp-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-sm);
+    }
+
+    .xp-level {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .xp-level .level-number {
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .xp-amount {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .xp-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255,255,255,0.06);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .xp-fill {
+      height: 100%;
+      background: var(--gradient-brand);
+      border-radius: var(--radius-full);
+      transition: width 1s var(--ease-out);
+      box-shadow: 0 0 12px rgba(0,249,255,0.3);
+    }
+
+    /* ── Quest Categories ── */
+    .quest-categories {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xl);
+      flex-wrap: wrap;
+    }
+
+    .quest-category-btn {
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-full);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .quest-category-btn:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-primary);
+    }
+
+    .quest-category-btn.active {
+      background: rgba(0,249,255,0.12);
+      border-color: rgba(0,249,255,0.3);
+      color: var(--accent-primary);
+    }
+
+    /* ── Quest Grid ── */
+    .quests-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: var(--space-lg);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .quest-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      border: var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      position: relative;
+      overflow: hidden;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .quest-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--glass-shadow), 0 12px 40px rgba(0,249,255,0.06);
+      border-color: rgba(0,249,255,0.2);
+    }
+
+    .quest-card.completed {
+      border-color: rgba(76, 175, 80, 0.3);
+    }
+
+    .quest-card.completed::after {
+      content: '✓ COMPLETED';
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 4px 10px;
+      background: rgba(76, 175, 80, 0.15);
+      border: 1px solid rgba(76, 175, 80, 0.3);
+      border-radius: var(--radius-full);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #4caf50;
+      letter-spacing: 0.05em;
+    }
+
+    .quest-icon {
+      font-size: 2.2rem;
+      margin-bottom: var(--space-sm);
+      display: block;
+    }
+
+    .quest-title {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .quest-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: var(--space-md);
+    }
+
+    .quest-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-sm);
+    }
+
+    .quest-xp {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+    }
+
+    .quest-difficulty {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .quest-difficulty .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    .quest-difficulty .dot.active {
+      background: var(--accent-primary);
+    }
+
+    .quest-progress-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-bottom: var(--space-sm);
+    }
+
+    .quest-progress-fill {
+      height: 100%;
+      background: var(--gradient-brand);
+      border-radius: var(--radius-full);
+      transition: width 0.6s var(--ease-out);
+    }
+
+    .quest-progress-text {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    .quest-action {
+      display: block;
+      width: 100%;
+      margin-top: var(--space-md);
+      padding: 10px;
+      background: rgba(0,249,255,0.08);
+      border: 1px solid rgba(0,249,255,0.15);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      cursor: pointer;
+      transition: all var(--duration-normal) var(--ease-out);
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .quest-action:hover {
+      background: rgba(0,249,255,0.15);
+      transform: translateY(-1px);
+    }
+
+    .quest-card.completed .quest-action {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    /* ── Leaderboard Teaser ── */
+    .leaderboard-teaser {
+      max-width: 600px;
+      margin: var(--space-3xl) auto 0;
+      text-align: center;
+    }
+
+    .leaderboard-teaser h3 {
+      font-family: var(--font-heading);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .leaderboard-teaser p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: var(--space-lg);
+    }
+
+    .leaderboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .leaderboard-entry {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      background: rgba(255,255,255,0.03);
+      border-radius: var(--radius-md);
+    }
+
+    .leaderboard-rank {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      width: 30px;
+      color: var(--text-muted);
+    }
+
+    .leaderboard-rank.gold   { color: #f9d423; }
+    .leaderboard-rank.silver { color: #b0b0b0; }
+    .leaderboard-rank.bronze { color: #cd7f32; }
+
+    .leaderboard-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .leaderboard-name {
+      flex: 1;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      text-align: left;
+    }
+
+    .leaderboard-xp {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent-primary);
+    }
+
+    @media (max-width: 640px) {
+      .quests-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="quests-page-body">
+  <canvas id="particle-bg"></canvas>
+
+  <!-- Navigation -->
+  <div id="nav-root"></div>
+
+  <!-- ═══════════════ QUESTS ═══════════════ -->
+  <section id="quests" class="section quests-section">
+    <div class="section-header">
+      <h1 class="section-title">Creative <span class="text-gradient">Quests</span></h1>
+      <p class="section-desc">Complete challenges to earn XP, badges, and climb the leaderboard</p>
+    </div>
+
+    <!-- XP Progress -->
+    <div class="xp-bar-wrapper">
+      <div class="xp-header">
+        <span class="xp-level">Level <span class="level-number" id="xp-level">1</span></span>
+        <span class="xp-amount" id="xp-amount">0 / 500 XP</span>
+      </div>
+      <div class="xp-track">
+        <div class="xp-fill" id="xp-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="quest-categories">
+      <button class="quest-category-btn active" data-cat="all">All Quests</button>
+      <button class="quest-category-btn" data-cat="creation">🎨 Creation</button>
+      <button class="quest-category-btn" data-cat="social">🤝 Social</button>
+      <button class="quest-category-btn" data-cat="exploration">🌍 Exploration</button>
+      <button class="quest-category-btn" data-cat="mastery">🏆 Mastery</button>
+    </div>
+
+    <!-- Quest Grid -->
+    <div id="quests-grid" class="quests-grid"></div>
+
+    <!-- Leaderboard Teaser -->
+    <div class="leaderboard-teaser">
+      <h3>🏅 Leaderboard</h3>
+      <p>Top creators this week</p>
+      <div id="leaderboard-list" class="leaderboard-list"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div id="footer-root"></div>
+
+  <!-- Toast -->
+  <div id="toast-root"></div>
+
+  <script src="shared.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Auth guard
+    const user = requireAuth();
+
+    // Inject nav, footer, toast
+    document.getElementById('nav-root').innerHTML = getNavHTML('quests');
+    document.getElementById('footer-root').innerHTML = getFooterHTML();
+    document.getElementById('toast-root').innerHTML = getToastHTML();
+
+    // Init
+    initParticles();
+    initNav('quests');
+    initPeerCount();
+
+    // ── Quests Logic ──
+    (function() {
+      const tokens = JSON.parse(localStorage.getItem('nf-team-tokens') || '[]');
+      const grid = document.getElementById('quests-grid');
+      const catBtns = document.querySelectorAll('.quest-category-btn');
+
+      const quests = [
+        {
+          id: 'first-mint',
+          icon: '🌟',
+          title: 'First Light',
+          desc: 'Mint your very first NFT in any studio. Begin your creative journey in the NF-Team universe.',
+          category: 'creation',
+          xp: 50,
+          difficulty: 1,
+          goal: 1,
+          check: () => tokens.length,
+          action: 'create.html',
+          actionLabel: 'Go to Studio',
+        },
+        {
+          id: 'five-mints',
+          icon: '🎨',
+          title: 'Prolific Creator',
+          desc: 'Mint 5 NFTs across any combination of studios. Variety is the spice of the universe!',
+          category: 'creation',
+          xp: 150,
+          difficulty: 2,
+          goal: 5,
+          check: () => tokens.length,
+          action: 'create.html',
+          actionLabel: 'Create More',
+        },
+        {
+          id: 'all-types',
+          icon: '🌈',
+          title: 'Renaissance Soul',
+          desc: 'Create at least one NFT of every type: Art, Music, Story, 3D, and Fusion.',
+          category: 'mastery',
+          xp: 300,
+          difficulty: 3,
+          goal: 5,
+          check: () => {
+            const types = new Set(tokens.map(t => t.type));
+            return types.size;
+          },
+          action: 'create.html',
+          actionLabel: 'Explore Studios',
+        },
+        {
+          id: 'explore-zones',
+          icon: '🗺️',
+          title: 'Zone Hopper',
+          desc: 'Create NFTs in at least 3 different biome zones. Each zone brings unique AI styles.',
+          category: 'exploration',
+          xp: 200,
+          difficulty: 2,
+          goal: 3,
+          check: () => {
+            const zones = new Set(tokens.map(t => t.zone));
+            return zones.size;
+          },
+          action: 'index.html#zones',
+          actionLabel: 'Explore Zones',
+        },
+        {
+          id: 'fusion-master',
+          icon: '⚡',
+          title: 'Fusion Master',
+          desc: 'Create 3 fusion NFTs by combining different types in the Fusion Lab.',
+          category: 'mastery',
+          xp: 250,
+          difficulty: 3,
+          goal: 3,
+          check: () => tokens.filter(t => t.type === 'fusion').length,
+          action: 'create.html#fusion',
+          actionLabel: 'Open Fusion Lab',
+        },
+        {
+          id: '3d-pioneer',
+          icon: '🧊',
+          title: '3D Pioneer',
+          desc: 'Generate and mint 2 unique 3D objects in the Forge.',
+          category: 'creation',
+          xp: 100,
+          difficulty: 2,
+          goal: 2,
+          check: () => tokens.filter(t => t.type === 'mesh').length,
+          action: 'create.html#mesh',
+          actionLabel: 'Open 3D Forge',
+        },
+        {
+          id: 'storyteller',
+          icon: '📖',
+          title: 'Storyteller',
+          desc: 'Write and mint 2 stories using the Story Builder.',
+          category: 'creation',
+          xp: 100,
+          difficulty: 2,
+          goal: 2,
+          check: () => tokens.filter(t => t.type === 'text').length,
+          action: 'create.html#story',
+          actionLabel: 'Write a Story',
+        },
+        {
+          id: 'gallery-visitor',
+          icon: '👀',
+          title: 'Gallery Visitor',
+          desc: 'Visit the gallery and explore the shared universe of creations.',
+          category: 'social',
+          xp: 30,
+          difficulty: 1,
+          goal: 1,
+          check: () => 1, // Auto-complete for demo
+          action: 'gallery.html',
+          actionLabel: 'Visit Gallery',
+        },
+        {
+          id: 'ten-mints',
+          icon: '💎',
+          title: 'Diamond Hands',
+          desc: 'Mint 10 NFTs total. You are a true pillar of the NF-Team community!',
+          category: 'mastery',
+          xp: 500,
+          difficulty: 4,
+          goal: 10,
+          check: () => tokens.length,
+          action: 'create.html',
+          actionLabel: 'Keep Creating',
+        },
+      ];
+
+      // Calculate XP
+      let totalXP = 0;
+      quests.forEach(q => {
+        const progress = Math.min(q.check(), q.goal);
+        if (progress >= q.goal) totalXP += q.xp;
+      });
+
+      const level = Math.floor(totalXP / 500) + 1;
+      const xpInLevel = totalXP % 500;
+      document.getElementById('xp-level').textContent = level;
+      document.getElementById('xp-amount').textContent = `${xpInLevel} / 500 XP`;
+      document.getElementById('xp-fill').style.width = `${(xpInLevel / 500) * 100}%`;
+
+      let currentCat = 'all';
+
+      function renderQuests() {
+        const filtered = currentCat === 'all' ? quests : quests.filter(q => q.category === currentCat);
+        grid.innerHTML = '';
+
+        filtered.forEach(q => {
+          const progress = Math.min(q.check(), q.goal);
+          const isComplete = progress >= q.goal;
+          const pct = Math.round((progress / q.goal) * 100);
+
+          const card = document.createElement('div');
+          card.className = `quest-card${isComplete ? ' completed' : ''}`;
+
+          const dots = Array.from({ length: 4 }, (_, i) =>
+            `<span class="dot${i < q.difficulty ? ' active' : ''}"></span>`
+          ).join('');
+
+          card.innerHTML = `
+            <span class="quest-icon">${q.icon}</span>
+            <h3 class="quest-title">${q.title}</h3>
+            <p class="quest-desc">${q.desc}</p>
+            <div class="quest-meta">
+              <span class="quest-xp">+${q.xp} XP</span>
+              <span class="quest-difficulty">${dots}</span>
+            </div>
+            <div class="quest-progress-track">
+              <div class="quest-progress-fill" style="width: ${pct}%"></div>
+            </div>
+            <p class="quest-progress-text">${progress} / ${q.goal}</p>
+            <a href="${q.action}" class="quest-action">${isComplete ? '✓ Complete' : q.actionLabel}</a>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      // Category filters
+      catBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          catBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentCat = btn.dataset.cat;
+          renderQuests();
+        });
+      });
+
+      renderQuests();
+
+      // ── Leaderboard ──
+      const names = ['PixelWiz_42', 'CosmicCreator', 'NeonNomad', 'MoltenMuse', 'CrystalCraft'];
+      const leaderboardList = document.getElementById('leaderboard-list');
+      const rankClasses = ['gold', 'silver', 'bronze', '', ''];
+
+      names.forEach((name, i) => {
+        const h1 = Math.floor(Math.random() * 360);
+        const h2 = (h1 + 60) % 360;
+        const xp = Math.max(100, Math.floor(1500 - i * 280 + Math.random() * 100));
+        const entry = document.createElement('div');
+        entry.className = 'leaderboard-entry';
+        entry.innerHTML = `
+          <span class="leaderboard-rank ${rankClasses[i]}">#${i + 1}</span>
+          <div class="leaderboard-avatar" style="background: linear-gradient(135deg, hsl(${h1},80%,55%), hsl(${h2},80%,55%))"></div>
+          <span class="leaderboard-name">${name}</span>
+          <span class="leaderboard-xp">${xp} XP</span>
+        `;
+        leaderboardList.appendChild(entry);
+      });
+    })();
+  </script>
+</body>
+</html>

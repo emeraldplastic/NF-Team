@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NF-Team — Gallery</title>
+  <meta name="description" content="Browse, explore, and collect AI-enhanced NFTs from the NF-Team universe. Filter by type, zone, and more." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── Gallery page layout ── */
+    .gallery-page-body {
+      padding-top: var(--nav-height);
+    }
+
+    .gallery-section {
+      min-height: calc(100vh - var(--nav-height));
+      padding: var(--space-xl) var(--space-lg);
+    }
+
+    .gallery-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+
+    .gallery-search {
+      flex: 1;
+      min-width: 220px;
+      padding: 12px 16px 12px 44px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-full);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      outline: none;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .gallery-search:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(0,249,255,0.1);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .gallery-search::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .search-wrapper::before {
+      content: '🔍';
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .gallery-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-chip {
+      padding: 8px 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-full);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .filter-chip:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-primary);
+    }
+
+    .filter-chip.active {
+      background: rgba(0,249,255,0.12);
+      border-color: rgba(0,249,255,0.3);
+      color: var(--accent-primary);
+    }
+
+    .gallery-sort {
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* ── NFT Grid ── */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: var(--space-lg);
+    }
+
+    .nft-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      border: var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .nft-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--glass-shadow), 0 12px 40px rgba(0,249,255,0.08);
+      border-color: rgba(0,249,255,0.2);
+    }
+
+    .nft-card-preview {
+      height: 200px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .nft-card-preview .preview-icon {
+      font-size: 3rem;
+      opacity: 0.6;
+    }
+
+    .nft-card-type {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 12px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-full);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      letter-spacing: 0.06em;
+    }
+
+    .nft-card-zone-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 4px 10px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-full);
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    .nft-card-body {
+      padding: var(--space-md);
+    }
+
+    .nft-card-title {
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .nft-card-creator {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .nft-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-sm) var(--space-md);
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .nft-card-stats {
+      display: flex;
+      gap: var(--space-md);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .nft-card-stats span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ── Empty State ── */
+    .gallery-empty {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-3xl) var(--space-xl);
+      text-align: center;
+    }
+
+    .gallery-empty .empty-icon {
+      font-size: 4rem;
+      margin-bottom: var(--space-md);
+      opacity: 0.4;
+    }
+
+    .gallery-empty p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 400px;
+    }
+
+    .gallery-empty .btn {
+      margin-top: var(--space-md);
+    }
+
+    /* ── Gallery stat bar ── */
+    .gallery-stat-bar {
+      display: flex;
+      gap: var(--space-lg);
+      padding: var(--space-md) 0;
+      margin-bottom: var(--space-md);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .gallery-stat-bar strong {
+      color: var(--text-primary);
+    }
+
+    @keyframes nftSpawn {
+      from { opacity: 0; transform: scale(0.9) translateY(20px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @media (max-width: 640px) {
+      .gallery-toolbar {
+        flex-direction: column;
+      }
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="gallery-page-body">
+  <canvas id="particle-bg"></canvas>
+
+  <!-- Navigation -->
+  <div id="nav-root"></div>
+
+  <!-- ═══════════════ GALLERY ═══════════════ -->
+  <section id="gallery" class="section gallery-section">
+    <div class="section-header">
+      <h1 class="section-title">NFT <span class="text-gradient">Gallery</span></h1>
+      <p class="section-desc">Explore creations from across the universe</p>
+    </div>
+
+    <div class="gallery-toolbar">
+      <div class="search-wrapper">
+        <input type="search" id="gallery-search" class="gallery-search" placeholder="Search NFTs…" aria-label="Search gallery" />
+      </div>
+      <div class="gallery-filters">
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="image">🖼️ Art</button>
+        <button class="filter-chip" data-filter="music">🎵 Music</button>
+        <button class="filter-chip" data-filter="text">📝 Stories</button>
+        <button class="filter-chip" data-filter="mesh">🧊 3D</button>
+        <button class="filter-chip" data-filter="fusion">⚡ Fusions</button>
+      </div>
+      <select class="gallery-sort select" id="gallery-sort" aria-label="Sort gallery">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="popular">Most Viewed</option>
+        <option value="forked">Most Forked</option>
+      </select>
+    </div>
+
+    <div class="gallery-stat-bar">
+      <span><strong id="gallery-total">0</strong> NFTs</span>
+      <span><strong id="gallery-art-count">0</strong> Art</span>
+      <span><strong id="gallery-music-count">0</strong> Music</span>
+      <span><strong id="gallery-story-count">0</strong> Stories</span>
+      <span><strong id="gallery-3d-count">0</strong> 3D</span>
+    </div>
+
+    <div id="gallery-grid" class="gallery-grid">
+      <div class="gallery-empty">
+        <span class="empty-icon">🌌</span>
+        <p>The gallery is waiting for your first creation. Head over to the Creation Studio to mint your first NFT!</p>
+        <a href="create.html" class="btn btn-primary btn-glow">Start Creating →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div id="footer-root"></div>
+
+  <!-- Toast -->
+  <div id="toast-root"></div>
+
+  <script src="shared.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Auth guard
+    const user = requireAuth();
+
+    // Inject nav, footer, toast
+    document.getElementById('nav-root').innerHTML = getNavHTML('gallery');
+    document.getElementById('footer-root').innerHTML = getFooterHTML();
+    document.getElementById('toast-root').innerHTML = getToastHTML();
+
+    // Init shared components
+    initParticles();
+    initNav('gallery');
+    initPeerCount();
+
+    // ── Gallery Logic ──
+    (function() {
+      const grid = document.getElementById('gallery-grid');
+      const searchInput = document.getElementById('gallery-search');
+      const sortSelect = document.getElementById('gallery-sort');
+      const chips = document.querySelectorAll('.filter-chip');
+
+      const zoneColors = {
+        'neon-district': ['#00f9ff', '#7b2ff7'],
+        'pixel-forest': ['#3ba55c', '#85d660'],
+        'molten-core': ['#e74c3c', '#f39c12'],
+        'cosmos-drift': ['#5b47d0', '#c46bdf'],
+        'marble-hall': ['#c5a55a', '#e8d5a3'],
+      };
+
+      const typeIcons = { image: '🖼️', music: '🎵', text: '📝', mesh: '🧊', fusion: '⚡' };
+
+      let currentFilter = 'all';
+      let tokens = JSON.parse(localStorage.getItem('nf-team-tokens') || '[]');
+
+      // Generate some demo tokens if empty
+      if (tokens.length === 0) {
+        const types = ['image', 'music', 'text', 'mesh', 'fusion'];
+        const zones = Object.keys(zoneColors);
+        const adjectives = ['Ethereal', 'Cosmic', 'Glitched', 'Radiant', 'Prismatic', 'Neon', 'Ancient', 'Digital', 'Quantum', 'Vibrant', 'Molten', 'Frozen'];
+        const nouns = ['Dream', 'Wave', 'Pulse', 'Fragment', 'Vortex', 'Echo', 'Spark', 'Bloom', 'Drift', 'Nova', 'Ember', 'Crystal'];
+
+        for (let i = 0; i < 12; i++) {
+          const type = types[i % types.length];
+          const zone = zones[Math.floor(Math.random() * zones.length)];
+          tokens.push({
+            id: '0x' + Array.from({length: 16}, () => Math.floor(Math.random()*16).toString(16)).join(''),
+            type,
+            zone,
+            owner: '0x' + Array.from({length: 8}, () => Math.floor(Math.random()*16).toString(16)).join('') + '…',
+            metadata: {
+              title: `${adjectives[i % adjectives.length]} ${nouns[(i + 3) % nouns.length]}`,
+              createdAt: Date.now() - Math.random() * 86400000 * 30,
+            },
+            interactions: {
+              views: Math.floor(Math.random() * 200),
+              forks: Math.floor(Math.random() * 15),
+              remixes: Math.floor(Math.random() * 8),
+            },
+          });
+        }
+      }
+
+      function updateStats() {
+        document.getElementById('gallery-total').textContent = tokens.length;
+        document.getElementById('gallery-art-count').textContent = tokens.filter(t => t.type === 'image').length;
+        document.getElementById('gallery-music-count').textContent = tokens.filter(t => t.type === 'music').length;
+        document.getElementById('gallery-story-count').textContent = tokens.filter(t => t.type === 'text').length;
+        document.getElementById('gallery-3d-count').textContent = tokens.filter(t => t.type === 'mesh').length;
+      }
+
+      function renderGallery() {
+        const search = searchInput.value.trim().toLowerCase();
+        let filtered = tokens.filter(t => {
+          if (currentFilter !== 'all' && t.type !== currentFilter) return false;
+          if (search && !t.metadata.title.toLowerCase().includes(search) && !t.zone.includes(search)) return false;
+          return true;
+        });
+
+        // Sort
+        const sort = sortSelect.value;
+        if (sort === 'newest') filtered.sort((a, b) => b.metadata.createdAt - a.metadata.createdAt);
+        else if (sort === 'oldest') filtered.sort((a, b) => a.metadata.createdAt - b.metadata.createdAt);
+        else if (sort === 'popular') filtered.sort((a, b) => b.interactions.views - a.interactions.views);
+        else if (sort === 'forked') filtered.sort((a, b) => b.interactions.forks - a.interactions.forks);
+
+        grid.innerHTML = '';
+
+        if (filtered.length === 0) {
+          grid.innerHTML = `
+            <div class="gallery-empty">
+              <span class="empty-icon">🔍</span>
+              <p>No NFTs match your search. Try a different filter or create something new!</p>
+              <a href="create.html" class="btn btn-primary btn-glow">Start Creating →</a>
+            </div>`;
+          return;
+        }
+
+        filtered.forEach((token, i) => {
+          const colors = zoneColors[token.zone] || zoneColors['neon-district'];
+          const card = document.createElement('div');
+          card.className = 'nft-card';
+          card.style.animationDelay = `${i * 0.05}s`;
+          card.style.animation = `nftSpawn 0.4s var(--ease-out) ${i * 0.05}s both`;
+
+          const age = Date.now() - token.metadata.createdAt;
+          const ageText = age < 3600000 ? `${Math.floor(age/60000)}m ago`
+            : age < 86400000 ? `${Math.floor(age/3600000)}h ago`
+            : `${Math.floor(age/86400000)}d ago`;
+
+          card.innerHTML = `
+            <div class="nft-card-preview" style="background: linear-gradient(135deg, ${colors[0]}40, ${colors[1]}40)">
+              <span class="preview-icon">${typeIcons[token.type] || '◆'}</span>
+              <span class="nft-card-type">${token.type}</span>
+              <span class="nft-card-zone-badge">${token.zone.replace(/-/g, ' ')}</span>
+            </div>
+            <div class="nft-card-body">
+              <h3 class="nft-card-title">${token.metadata.title}</h3>
+              <p class="nft-card-creator">${ageText}</p>
+            </div>
+            <div class="nft-card-footer">
+              <div class="nft-card-stats">
+                <span>👁️ ${token.interactions.views}</span>
+                <span>🔀 ${token.interactions.forks}</span>
+                <span>🔁 ${token.interactions.remixes}</span>
+              </div>
+            </div>`;
+          grid.appendChild(card);
+        });
+      }
+
+      // Events
+      chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          chips.forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          currentFilter = chip.dataset.filter;
+          renderGallery();
+        });
+      });
+
+      searchInput.addEventListener('input', renderGallery);
+      sortSelect.addEventListener('change', renderGallery);
+
+      // Initial render
+      updateStats();
+      renderGallery();
+    })();
+  </script>
+</body>
+</html>

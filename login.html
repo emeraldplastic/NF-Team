@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NF-Team — Login</title>
+  <meta name="description" content="Sign in to NF-Team, the global NFT universe builder. Create, remix, and collect AI-enhanced NFTs." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── Login Page Overrides ── */
+    body.login-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .login-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 480px;
+      padding: var(--space-xl);
+      animation: loginSlideUp 0.8s var(--ease-out) both;
+    }
+
+    @keyframes loginSlideUp {
+      from { opacity: 0; transform: translateY(40px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .login-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl) var(--space-xl);
+      box-shadow: var(--glass-shadow), 0 0 60px rgba(0,249,255,0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-brand);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: var(--space-xl);
+    }
+
+    .login-logo .logo-icon {
+      font-size: 3rem;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: block;
+      margin-bottom: var(--space-sm);
+      animation: logoPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes logoPulse {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.4); }
+    }
+
+    .login-logo .logo-text {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .login-logo .logo-accent {
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .login-logo .login-tagline {
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      margin-top: var(--space-xs);
+    }
+
+    /* Tab switcher */
+    .login-tabs {
+      display: flex;
+      background: rgba(255,255,255,0.04);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      margin-bottom: var(--space-lg);
+      position: relative;
+    }
+
+    .login-tab {
+      flex: 1;
+      padding: 10px 0;
+      text-align: center;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      border-radius: var(--radius-full);
+      transition: all var(--duration-normal) var(--ease-out);
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-tab.active {
+      color: var(--text-primary);
+      background: rgba(0,249,255,0.12);
+      box-shadow: 0 0 16px rgba(0,249,255,0.15);
+    }
+
+    .login-tab:hover:not(.active) {
+      color: var(--text-primary);
+    }
+
+    /* Form */
+    .login-form {
+      display: none;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .login-form.active {
+      display: flex;
+      animation: formFade 0.3s var(--ease-out);
+    }
+
+    @keyframes formFade {
+      from { opacity: 0; transform: translateX(10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .form-input {
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      outline: none;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(0,249,255,0.1);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .form-input:hover:not(:focus) {
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper .form-input {
+      padding-right: 48px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 4px;
+      transition: color var(--duration-fast);
+    }
+
+    .password-toggle:hover {
+      color: var(--text-primary);
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .form-checkbox input {
+      accent-color: var(--accent-primary);
+      width: 16px;
+      height: 16px;
+    }
+
+    .form-checkbox span {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .form-link {
+      font-size: 0.85rem;
+      color: var(--accent-primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color var(--duration-fast);
+    }
+
+    .form-link:hover {
+      color: var(--accent-secondary);
+    }
+
+    .login-btn {
+      margin-top: var(--space-sm);
+      padding: 16px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: var(--gradient-brand);
+      color: #000;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all var(--duration-normal) var(--ease-out);
+      letter-spacing: 0.02em;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--glow-strong);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    .login-btn .btn-loading {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .login-btn.loading .btn-text { display: none; }
+    .login-btn.loading .btn-loading { display: flex; }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Divider */
+    .login-divider {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin: var(--space-sm) 0;
+    }
+
+    .login-divider::before,
+    .login-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .login-divider span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Social buttons */
+    .social-btns {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .social-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .social-btn:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.2);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
+
+    .social-btn .social-icon {
+      font-size: 1.2rem;
+    }
+
+    /* Error message */
+    .form-error {
+      font-size: 0.8rem;
+      color: hsl(0, 80%, 60%);
+      padding: 10px 14px;
+      background: rgba(255,60,60,0.08);
+      border: 1px solid rgba(255,60,60,0.2);
+      border-radius: var(--radius-sm);
+      display: none;
+    }
+
+    .form-error.visible {
+      display: block;
+      animation: formFade 0.3s var(--ease-out);
+    }
+
+    /* Footer text */
+    .login-footer {
+      text-align: center;
+      margin-top: var(--space-lg);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .login-footer a {
+      color: var(--accent-primary);
+      text-decoration: none;
+    }
+
+    /* Floating orbs */
+    .login-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      z-index: 1;
+      animation: orbFloat 8s ease-in-out infinite alternate;
+    }
+
+    .login-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: var(--accent-primary);
+      top: -100px;
+      right: -100px;
+    }
+
+    .login-orb-2 {
+      width: 350px;
+      height: 350px;
+      background: var(--accent-secondary);
+      bottom: -100px;
+      left: -100px;
+      animation-delay: 3s;
+    }
+
+    .login-orb-3 {
+      width: 200px;
+      height: 200px;
+      background: var(--accent-tertiary);
+      top: 50%;
+      left: 50%;
+      animation-delay: 5s;
+    }
+
+    @keyframes orbFloat {
+      0%   { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(30px, -30px) scale(1.1); }
+    }
+
+    @media (max-width: 520px) {
+      .login-container {
+        padding: var(--space-md);
+      }
+      .login-card {
+        padding: var(--space-xl) var(--space-md);
+      }
+      .social-btns {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body class="login-page">
+  <canvas id="particle-bg"></canvas>
+
+  <div class="login-orb login-orb-1"></div>
+  <div class="login-orb login-orb-2"></div>
+  <div class="login-orb login-orb-3"></div>
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="logo-icon">◆</span>
+        <span class="logo-text">NF<span class="logo-accent">-Team</span></span>
+        <p class="login-tagline">Enter the NFT Universe</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="login-tabs">
+        <button class="login-tab active" data-tab="signin" id="tab-signin">Sign In</button>
+        <button class="login-tab" data-tab="signup" id="tab-signup">Sign Up</button>
+      </div>
+
+      <!-- Error message -->
+      <div class="form-error" id="login-error"></div>
+
+      <!-- Sign In Form -->
+      <form class="login-form active" id="form-signin" autocomplete="on">
+        <div class="form-group">
+          <label class="form-label" for="signin-email">Email</label>
+          <input type="email" id="signin-email" class="form-input" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="signin-password">Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="signin-password" class="form-input" placeholder="••••••••" required autocomplete="current-password" />
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">👁️</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-checkbox">
+            <input type="checkbox" id="remember-me" checked />
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="form-link">Forgot password?</a>
+        </div>
+        <button type="submit" class="login-btn" id="btn-signin">
+          <span class="btn-text">Sign In →</span>
+          <span class="btn-loading"><span class="spinner"></span> Signing in…</span>
+        </button>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form class="login-form" id="form-signup" autocomplete="on">
+        <div class="form-group">
+          <label class="form-label" for="signup-username">Username</label>
+          <input type="text" id="signup-username" class="form-input" placeholder="Choose a username" required autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="signup-email">Email</label>
+          <input type="email" id="signup-email" class="form-input" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="signup-password">Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="signup-password" class="form-input" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password" />
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">👁️</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="signup-confirm">Confirm Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="signup-confirm" class="form-input" placeholder="Re-enter password" required autocomplete="new-password" />
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">👁️</button>
+          </div>
+        </div>
+        <label class="form-checkbox">
+          <input type="checkbox" id="agree-terms" required />
+          <span>I agree to the <a href="#" class="form-link">Terms of Service</a></span>
+        </label>
+        <button type="submit" class="login-btn" id="btn-signup">
+          <span class="btn-text">Create Account →</span>
+          <span class="btn-loading"><span class="spinner"></span> Creating…</span>
+        </button>
+      </form>
+
+      <div class="login-divider"><span>or continue with</span></div>
+
+      <div class="social-btns">
+        <button type="button" class="social-btn" id="btn-google">
+          <span class="social-icon">🔵</span> Google
+        </button>
+        <button type="button" class="social-btn" id="btn-github">
+          <span class="social-icon">⚫</span> GitHub
+        </button>
+        <button type="button" class="social-btn" id="btn-wallet-login">
+          <span class="social-icon">⟐</span> Wallet
+        </button>
+      </div>
+
+      <div class="login-footer">
+        <p>By signing in, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── Particle Background (lightweight copy) ── */
+    (function() {
+      const canvas = document.getElementById('particle-bg');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      const COUNT = 60;
+
+      function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+      resize();
+      addEventListener('resize', resize);
+
+      class P {
+        constructor() { this.reset(); }
+        reset() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.vx = (Math.random() - 0.5) * 0.25;
+          this.vy = (Math.random() - 0.5) * 0.25;
+          this.r = Math.random() * 2 + 0.5;
+          this.o = Math.random() * 0.4 + 0.1;
+          this.h = Math.random() > 0.5 ? 190 : 270;
+        }
+        update() {
+          this.x += this.vx; this.y += this.vy;
+          if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+          if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        }
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${this.h},100%,60%,${this.o})`;
+          ctx.fill();
+        }
+      }
+
+      for (let i = 0; i < COUNT; i++) particles.push(new P());
+
+      (function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        for (let i = 0; i < particles.length; i++)
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            if (d < 140) {
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.strokeStyle = `rgba(0,249,255,${0.05 * (1 - d / 140)})`;
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+            }
+          }
+        requestAnimationFrame(loop);
+      })();
+    })();
+
+    /* ── Auth Logic ── */
+    (function() {
+      // Check if already logged in
+      const user = JSON.parse(localStorage.getItem('nfteam_user') || 'null');
+      if (user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Tab switching
+      const tabs = document.querySelectorAll('.login-tab');
+      const forms = document.querySelectorAll('.login-form');
+      const errorEl = document.getElementById('login-error');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          forms.forEach(f => f.classList.remove('active'));
+          document.getElementById(`form-${tab.dataset.tab}`).classList.add('active');
+          errorEl.classList.remove('visible');
+        });
+      });
+
+      // Password toggle
+      document.querySelectorAll('.password-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const input = btn.previousElementSibling;
+          const isPassword = input.type === 'password';
+          input.type = isPassword ? 'text' : 'password';
+          btn.textContent = isPassword ? '🙈' : '👁️';
+        });
+      });
+
+      function showError(msg) {
+        errorEl.textContent = msg;
+        errorEl.classList.add('visible');
+      }
+
+      function setLoading(btn, loading) {
+        btn.classList.toggle('loading', loading);
+        btn.disabled = loading;
+      }
+
+      // Sign In
+      document.getElementById('form-signin').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorEl.classList.remove('visible');
+        const btn = document.getElementById('btn-signin');
+        const email = document.getElementById('signin-email').value.trim();
+        const password = document.getElementById('signin-password').value;
+
+        if (!email || !password) { showError('Please fill in all fields.'); return; }
+
+        setLoading(btn, true);
+
+        // Simulate network delay
+        await new Promise(r => setTimeout(r, 1200));
+
+        // Check stored users
+        const users = JSON.parse(localStorage.getItem('nfteam_users') || '{}');
+        const userData = users[email];
+
+        if (!userData) {
+          setLoading(btn, false);
+          showError('No account found with this email. Please sign up first.');
+          return;
+        }
+
+        if (userData.password !== password) {
+          setLoading(btn, false);
+          showError('Incorrect password. Please try again.');
+          return;
+        }
+
+        // Login successful
+        const session = {
+          email,
+          username: userData.username,
+          avatar: userData.avatar || null,
+          loggedInAt: Date.now()
+        };
+        localStorage.setItem('nfteam_user', JSON.stringify(session));
+
+        if (document.getElementById('remember-me').checked) {
+          localStorage.setItem('nfteam_remember', email);
+        }
+
+        window.location.href = 'index.html';
+      });
+
+      // Sign Up
+      document.getElementById('form-signup').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorEl.classList.remove('visible');
+        const btn = document.getElementById('btn-signup');
+        const username = document.getElementById('signup-username').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value;
+        const confirm = document.getElementById('signup-confirm').value;
+
+        if (!username || !email || !password || !confirm) {
+          showError('Please fill in all fields.');
+          return;
+        }
+        if (password.length < 8) {
+          showError('Password must be at least 8 characters.');
+          return;
+        }
+        if (password !== confirm) {
+          showError('Passwords do not match.');
+          return;
+        }
+        if (!document.getElementById('agree-terms').checked) {
+          showError('You must agree to the Terms of Service.');
+          return;
+        }
+
+        setLoading(btn, true);
+        await new Promise(r => setTimeout(r, 1200));
+
+        const users = JSON.parse(localStorage.getItem('nfteam_users') || '{}');
+        if (users[email]) {
+          setLoading(btn, false);
+          showError('An account with this email already exists.');
+          return;
+        }
+
+        // Generate random avatar gradient
+        const h1 = Math.floor(Math.random() * 360);
+        const h2 = (h1 + 60 + Math.floor(Math.random() * 60)) % 360;
+        const avatar = `linear-gradient(135deg, hsl(${h1},80%,55%), hsl(${h2},80%,55%))`;
+
+        users[email] = { username, password, avatar, createdAt: Date.now() };
+        localStorage.setItem('nfteam_users', JSON.stringify(users));
+
+        const session = { email, username, avatar, loggedInAt: Date.now() };
+        localStorage.setItem('nfteam_user', JSON.stringify(session));
+
+        window.location.href = 'index.html';
+      });
+
+      // Social auth (demo — instant login)
+      ['btn-google', 'btn-github', 'btn-wallet-login'].forEach(id => {
+        document.getElementById(id).addEventListener('click', async () => {
+          const h1 = Math.floor(Math.random() * 360);
+          const h2 = (h1 + 80) % 360;
+          const session = {
+            email: 'demo@nfteam.io',
+            username: 'CreatorX_' + Math.floor(Math.random() * 9999),
+            avatar: `linear-gradient(135deg, hsl(${h1},80%,55%), hsl(${h2},80%,55%))`,
+            loggedInAt: Date.now()
+          };
+          localStorage.setItem('nfteam_user', JSON.stringify(session));
+          window.location.href = 'index.html';
+        });
+      });
+
+      // Pre-fill remembered email
+      const remembered = localStorage.getItem('nfteam_remember');
+      if (remembered) {
+        document.getElementById('signin-email').value = remembered;
+      }
+    })();
+  </script>
+</body>
+</html>

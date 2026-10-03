@@ -1097,26 +1097,44 @@ function initPeerSimulator() {
   }, 5000);
 }
 
-// ─── Initialize Everything ───
+// ─── Page-Aware Initialization ───
+// Each function is guarded — only runs if its required DOM elements exist on this page.
 document.addEventListener('DOMContentLoaded', () => {
-  initParticles();
-  initNav();
-  animateStats();
-  initZones();
-  initStudioTabs();
-  initDrawCanvas();
-  initUniverseGraph();
-  initNodeDetail();
-  initMusicVisualizer();
-  initMeshViewport();
-  initStoryEditor();
-  initWallet();
+  // Core (present on all authenticated pages)
+  if (document.getElementById('particle-bg'))  initParticles();
+  if (document.getElementById('main-nav'))     initNav();
+  if (document.getElementById('mint-toast'))   initToast();
+
+  // Index / landing page
+  if (document.querySelector('.hero-stats'))    animateStats();
+  if (document.querySelectorAll('.zone-card').length) initZones();
+  if (document.getElementById('universe-canvas')) {
+    initUniverseGraph();
+    initNodeDetail();
+  }
+  if (document.getElementById('btn-enter-universe')) initHeroButtons();
+
+  // Create page
+  if (document.querySelectorAll('.studio-tab').length) initStudioTabs();
+  if (document.getElementById('draw-canvas'))  initDrawCanvas();
+  if (document.getElementById('music-visualizer')) initMusicVisualizer();
+  if (document.getElementById('mesh-viewport')) initMeshViewport();
+  if (document.getElementById('story-content')) initStoryEditor();
+
+  // Gallery page
+  if (document.querySelectorAll('.filter-chip').length) initGalleryFilters();
+  if (document.getElementById('gallery-grid')) loadSavedTokens();
+
+  // Profile page
+  if (document.getElementById('btn-connect-wallet')) initWallet();
+  if (document.getElementById('btn-export-ledger'))  initLedgerActions();
+
+  // Minting (create & profile pages)
   initMinting();
-  initGalleryFilters();
-  initToast();
-  initHeroButtons();
-  initLedgerActions();
-  initPeerSimulator();
+
+  // Scroll animations (all pages)
   initScrollAnimations();
-  loadSavedTokens();
+
+  // Peer simulator (all authenticated pages)
+  if (document.querySelector('.peer-number'))  initPeerSimulator();
 });
