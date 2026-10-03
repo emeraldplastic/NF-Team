@@ -93,6 +93,7 @@ function initParticles() {
 // ─── Navigation ───
 function initNav() {
   const nav = document.getElementById('main-nav');
+  if (!nav) return;
   const links = document.querySelectorAll('.nav-link');
   const mobileToggle = document.getElementById('mobile-menu-toggle');
   const navLinks = document.querySelector('.nav-links');
@@ -102,44 +103,27 @@ function initNav() {
     nav.classList.toggle('scrolled', window.scrollY > 50);
   });
 
-  // Smooth scroll to sections
+  // Smooth scroll to anchor sections ONLY (e.g. #universe)
   links.forEach(link => {
     link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const section = link.dataset.section;
-      const target = document.getElementById(section);
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        links.forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
+      const href = link.getAttribute('href');
+      if (href && href.startsWith('#') && href.length > 1) {
+        e.preventDefault();
+        const target = document.getElementById(href.substring(1));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
-      // Close mobile menu
-      navLinks.classList.remove('mobile-open');
+      if (navLinks) navLinks.classList.remove('mobile-open');
     });
   });
 
   // Mobile menu toggle
-  mobileToggle.addEventListener('click', () => {
-    navLinks.classList.toggle('mobile-open');
-  });
-
-  // Active section tracking on scroll
-  const sections = ['hero', 'universe', 'create', 'gallery', 'quests', 'profile'];
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const id = entry.target.id;
-        links.forEach(l => {
-          l.classList.toggle('active', l.dataset.section === id);
-        });
-      }
+  if (mobileToggle && navLinks) {
+    mobileToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('mobile-open');
     });
-  }, { threshold: 0.3 });
-
-  sections.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) observer.observe(el);
-  });
+  }
 }
 
 // ─── Animated Stats ───

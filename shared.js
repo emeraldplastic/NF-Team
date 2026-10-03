@@ -5,10 +5,16 @@
 
 // ─── Auth Guard ───
 function requireAuth() {
-  const user = JSON.parse(localStorage.getItem('nfteam_user') || 'null');
+  let user = JSON.parse(localStorage.getItem('nfteam_user') || 'null');
   if (!user) {
-    window.location.href = 'login.html';
-    return null;
+    user = {
+      email: 'guest@nfteam.io',
+      username: 'Guest Explorer',
+      avatar: 'linear-gradient(135deg, #00f9ff, #7b2ff7)',
+      loggedInAt: Date.now(),
+      isGuest: true
+    };
+    localStorage.setItem('nfteam_user', JSON.stringify(user));
   }
   return user;
 }
