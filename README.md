@@ -44,10 +44,20 @@ npx serve .
 
 ```
 NF-Team/
-├── index.html       # Main HTML with all sections
-├── styles.css       # Complete design system & styles
-├── app.js           # Application logic & interactivity
-└── README.md        # This file
+├── index.html           # Main universe & biome explorer
+├── create.html          # Multi-modal creation studio (Canvas, Music, Story, 3D, Fusion)
+├── gallery.html         # NFT showcase with filtering, sorting, & search
+├── quests.html          # Gamified challenges, achievements, & leaderboards
+├── profile.html         # User identity, wallet management, & minted collection
+├── login.html           # Web3 & social authentication portal
+├── styles.css           # Complete design system, glassmorphism, & animations
+├── shared.js            # Shared navigation, auth guards, particle background, toasts
+├── app.js               # Studios logic, procedural generators, & canvas engines
+├── store.js             # Reactive centralized state management & persistence
+├── events.js            # Decoupled publish/subscribe event bus
+├── router.js            # SPA-like client-side routing & page transitions
+├── ui-enhancements.js   # Scroll reveals, magnetic buttons, 3D tilt, cursor glow, skeletons
+└── README.md            # Platform documentation
 ```
 
 ## 🌍 Biomes

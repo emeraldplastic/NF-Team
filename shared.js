@@ -25,6 +25,13 @@ function getCurrentUser() {
 
 function logout() {
   localStorage.removeItem('nfteam_user');
+  if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
+    EventBus.emit(Events.AUTH_LOGOUT);
+  }
+  if (typeof Store !== 'undefined') {
+    Store.set('user', null);
+    Store.set('walletConnected', false);
+  }
   window.location.href = 'login.html';
 }
 
@@ -117,7 +124,7 @@ function initNav(activePage) {
     nav.classList.toggle('scrolled', window.scrollY > 50);
   });
 
-  // Mobile menu
+  // Mobile menu toggle
   if (mobileToggle && navLinks) {
     mobileToggle.addEventListener('click', () => {
       navLinks.classList.toggle('mobile-open');
@@ -153,6 +160,16 @@ function initNav(activePage) {
       logout();
     });
   }
+
+  // Initialize UI Enhancements if loaded
+  if (typeof UIEnhancements !== 'undefined' && typeof UIEnhancements.init === 'function') {
+    UIEnhancements.init();
+  }
+
+  // Initialize Client-Side Router if loaded
+  if (typeof Router !== 'undefined' && typeof Router.init === 'function') {
+    Router.init();
+  }
 }
 
 // ─── Toast Notifications ───
@@ -167,6 +184,16 @@ function showToast(message, detail) {
   const closeBtn = toast.querySelector('.toast-close');
   if (closeBtn) {
     closeBtn.addEventListener('click', () => toast.classList.add('hidden'), { once: true });
+  }
+
+  // Emit toast notification event
+  if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
+    EventBus.emit(Events.NOTIFICATION_SHOW, { message, detail });
+  }
+  if (typeof Store !== 'undefined') {
+    const notifs = Store.get('notifications') || [];
+    notifs.push({ message, detail, timestamp: Date.now() });
+    Store.set('notifications', notifs);
   }
 }
 
@@ -183,6 +210,13 @@ function updateZoneTheme(zone) {
   document.documentElement.style.setProperty('--accent-primary', t.a);
   document.documentElement.style.setProperty('--accent-secondary', t.b);
   document.documentElement.style.setProperty('--gradient-brand', `linear-gradient(135deg, ${t.a}, ${t.b})`);
+
+  if (typeof Store !== 'undefined') {
+    Store.set('currentZone', zone);
+  }
+  if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
+    EventBus.emit(Events.ZONE_CHANGED, { zone });
+  }
 }
 
 // ─── Simulated Peer Count ───
@@ -194,6 +228,9 @@ function initPeerCount() {
     const delta = Math.random() > 0.5 ? 1 : -1;
     const next = Math.max(1, Math.min(current + delta, 24));
     el.textContent = next;
+    if (typeof Store !== 'undefined') {
+      Store.set('peerCount', next);
+    }
   }, 5000);
 }
 

@@ -550,7 +550,11 @@
     </div>
   </div>
 
+  <script src="events.js"></script>
+  <script src="store.js"></script>
+  <script src="ui-enhancements.js"></script>
   <script>
+    if (typeof UIEnhancements !== 'undefined') UIEnhancements.init();
     /* ── Particle Background (lightweight copy) ── */
     (function() {
       const canvas = document.getElementById('particle-bg');

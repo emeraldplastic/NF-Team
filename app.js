@@ -163,6 +163,12 @@ function initZones() {
       card.classList.add('active');
       state.currentZone = card.dataset.zone;
       updateZoneTheme(card.dataset.zone);
+      if (typeof Store !== 'undefined') {
+        Store.set('currentZone', card.dataset.zone);
+      }
+      if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
+        EventBus.emit(Events.ZONE_CHANGED, { zone: card.dataset.zone });
+      }
     });
   });
 }
@@ -179,6 +185,13 @@ function updateZoneTheme(zone) {
   document.documentElement.style.setProperty('--accent-primary', t.a);
   document.documentElement.style.setProperty('--accent-secondary', t.b);
   document.documentElement.style.setProperty('--gradient-brand', `linear-gradient(135deg, ${t.a}, ${t.b})`);
+
+  if (typeof Store !== 'undefined') {
+    Store.set('currentZone', zone);
+  }
+  if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
+    EventBus.emit(Events.ZONE_CHANGED, { zone });
+  }
 }
 
 // ─── Studio Tabs ───
@@ -195,6 +208,12 @@ function initStudioTabs() {
         p.classList.toggle('active', p.id === `studio-${studio}`);
       });
       state.currentStudio = studio;
+      if (typeof Store !== 'undefined') {
+        Store.set('currentStudio', studio);
+      }
+      if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
+        EventBus.emit(Events.STUDIO_TAB_CHANGED, { studio });
+      }
     });
   });
 }
@@ -687,6 +706,13 @@ function initWallet() {
       // Disconnect
       state.walletConnected = false;
       state.wallet = null;
+      if (typeof Store !== 'undefined') {
+        Store.set('walletConnected', false);
+        Store.set('wallet', null);
+      }
+      if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
+        EventBus.emit(Events.WALLET_DISCONNECTED);
+      }
       btn.innerHTML = '<span class="btn-icon">⟐</span> Connect Wallet';
       profileName.textContent = 'Anonymous Creator';
       profileAddress.textContent = 'Not connected';
@@ -700,6 +726,14 @@ function initWallet() {
 
     state.walletConnected = true;
     state.wallet = { address };
+
+    if (typeof Store !== 'undefined') {
+      Store.set('walletConnected', true);
+      Store.set('wallet', state.wallet);
+    }
+    if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
+      EventBus.emit(Events.WALLET_CONNECTED, { wallet: state.wallet });
+    }
 
     btn.innerHTML = `<span class="btn-icon">◆</span> ${address.slice(0, 6)}…${address.slice(-4)}`;
     btn.classList.remove('btn-primary');
@@ -756,6 +790,13 @@ function initMinting() {
       // Save to localStorage
       localStorage.setItem('nf-team-tokens', JSON.stringify(state.tokens));
 
+      if (typeof Store !== 'undefined') {
+        Store.set('tokens', state.tokens);
+      }
+      if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
+        EventBus.emit(Events.TOKEN_MINTED, token);
+      }
+
       btn.disabled = false;
       btn.innerHTML = '<span class="btn-icon">◆</span> Mint as NFT';
 
@@ -763,7 +804,8 @@ function initMinting() {
       addNFTToGallery(token);
 
       // Update profile stats
-      document.getElementById('profile-minted').textContent = state.tokens.length;
+      const profileMinted = document.getElementById('profile-minted');
+      if (profileMinted) profileMinted.textContent = state.tokens.length;
     });
   });
 }
