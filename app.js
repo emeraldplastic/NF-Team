@@ -695,117 +695,115 @@ function initMusicVisualizer() {
   animate();
 }
 
-// ─── Wallet Connection (Simulated) ───
-function initWallet() {
-  const btn = document.getElementById('btn-connect-wallet');
-  const profileName = document.getElementById('profile-name');
-  const profileAddress = document.getElementById('profile-address');
-
-  btn.addEventListener('click', () => {
-    if (state.walletConnected) {
-      // Disconnect
-      state.walletConnected = false;
-      state.wallet = null;
-      if (typeof Store !== 'undefined') {
-        Store.set('walletConnected', false);
-        Store.set('wallet', null);
-      }
-      if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
-        EventBus.emit(Events.WALLET_DISCONNECTED);
-      }
-      btn.innerHTML = '<span class="btn-icon">⟐</span> Connect Wallet';
-      profileName.textContent = 'Anonymous Creator';
-      profileAddress.textContent = 'Not connected';
-      return;
-    }
-
-    // Simulate wallet creation
-    const id = Array.from(crypto.getRandomValues(new Uint8Array(20)))
-      .map(b => b.toString(16).padStart(2, '0')).join('');
-    const address = '0x' + id;
-
-    state.walletConnected = true;
-    state.wallet = { address };
-
-    if (typeof Store !== 'undefined') {
-      Store.set('walletConnected', true);
-      Store.set('wallet', state.wallet);
-    }
-    if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
-      EventBus.emit(Events.WALLET_CONNECTED, { wallet: state.wallet });
-    }
-
-    btn.innerHTML = `<span class="btn-icon">◆</span> ${address.slice(0, 6)}…${address.slice(-4)}`;
+// ─── Wallet Connection ───
+function renderWalletButton(btn, wallet) {
+  const addressEl = document.getElementById('profile-address');
+  const typeEl = document.getElementById('profile-wallet-type');
+  if (wallet) {
+    btn.textContent = `◆ ${wallet.address.slice(0, 6)}…${wallet.address.slice(-4)}`;
     btn.classList.remove('btn-primary');
     btn.classList.add('btn-secondary');
+    if (addressEl) addressEl.textContent = wallet.address;
+    if (typeEl) typeEl.textContent = wallet.type === 'eip1193'
+      ? 'Browser wallet (EIP-1193)'
+      : 'Local ECDSA signing key — install MetaMask to use an Ethereum wallet';
+  } else {
+    btn.textContent = '⟐ Connect Wallet';
+    btn.classList.remove('btn-secondary');
+    btn.classList.add('btn-primary');
+    if (addressEl) addressEl.textContent = 'Not connected';
+    if (typeEl) typeEl.textContent = '';
+  }
+}
 
-    profileName.textContent = 'Creator ' + address.slice(2, 8);
-    profileAddress.textContent = address;
+function initWallet() {
+  const btn = document.getElementById('btn-connect-wallet');
+  const W = NFSecurity.Wallet;
+  const sync = wallet => {
+    state.wallet = wallet;
+    state.walletConnected = !!wallet;
+    renderWalletButton(btn, wallet);
+  };
+  sync(W.current());
+  W.onChange(sync);
 
-    showToast('Wallet Connected!', `Address: ${address.slice(0, 10)}…`);
+  btn.addEventListener('click', async () => {
+    if (W.isConnected()) {
+      W.disconnect();
+      showToast('Wallet Disconnected', 'You can reconnect at any time.');
+      return;
+    }
+    try {
+      const wallet = await W.connect();
+      showToast('Wallet Connected!', `Address: ${wallet.address.slice(0, 10)}…`);
+    } catch (err) {
+      showToast('Wallet connection failed', err.message);
+    }
   });
 }
 
 // ─── Minting ───
-function initMinting() {
-  const mintButtons = [
-    'btn-mint-canvas', 'btn-mint-music', 'btn-mint-story', 'btn-mint-mesh', 'btn-mint-fusion',
-  ];
+const MINT_TYPES = { canvas: 'image', music: 'music', story: 'text', mesh: 'mesh', fusion: 'fusion' };
 
-  mintButtons.forEach(id => {
-    const btn = document.getElementById(id);
+function initMinting() {
+  Object.keys(MINT_TYPES).forEach(kind => {
+    const btn = document.getElementById(`btn-mint-${kind}`);
     if (!btn) return;
 
     btn.addEventListener('click', async () => {
-      if (!state.walletConnected) {
-        showToast('Wallet Required', 'Please connect your wallet first.');
-        return;
+      let wallet = NFSecurity.Wallet.current();
+      if (!wallet) {
+        try {
+          wallet = await NFSecurity.Wallet.connect();
+        } catch (err) {
+          showToast('Wallet Required', err.message);
+          return;
+        }
       }
 
+      const original = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<span class="btn-icon">⏳</span> Minting…';
+      btn.textContent = '⏳ Signing…';
 
-      // Simulate minting delay
-      await new Promise(r => setTimeout(r, 1500));
+      try {
+        const tokens = JSON.parse(localStorage.getItem('nf-team-tokens') || '[]');
+        const content = window.NFStudio ? NFStudio.getMintContent(kind) : '';
+        const zone = state.currentZone;
+        const token = {
+          id: '0x' + NFSecurity.randomHex(16),
+          type: MINT_TYPES[kind],
+          zone,
+          owner: wallet.address,
+          creator: wallet.address,
+          contentHash: await NFSecurity.sha256Hex(content),
+          metadata: {
+            title: `${zone.replace(/-/g, ' ')} ${kind} #${tokens.length + 1}`,
+            createdAt: Date.now(),
+          },
+          interactions: { views: 0, forks: 0, remixes: 0 },
+        };
+        if (kind === 'fusion' && window.NFStudio && NFStudio.studio.fusion.result) {
+          token.parents = NFStudio.studio.fusion.result.parents;
+        }
+        token.signature = await NFSecurity.signToken(token);
 
-      const tokenId = '0x' + Array.from(crypto.getRandomValues(new Uint8Array(16)))
-        .map(b => b.toString(16).padStart(2, '0')).join('');
+        tokens.push(token);
+        state.tokens = tokens;
+        localStorage.setItem('nf-team-tokens', JSON.stringify(tokens));
+        if (typeof Store !== 'undefined') Store.set('tokens', tokens);
+        if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
+          EventBus.emit(Events.NFT_MINTED, token);
+        }
+        if (document.getElementById('gallery-grid')) addNFTToGallery(token);
 
-      const type = id.replace('btn-mint-', '');
-      const token = {
-        id: tokenId,
-        type: type === 'canvas' ? 'image' : type,
-        zone: state.currentZone,
-        owner: state.wallet.address,
-        metadata: {
-          title: `${state.currentZone.replace('-', ' ')} ${type} #${state.tokens.length + 1}`,
-          createdAt: Date.now(),
-        },
-        interactions: { views: 0, forks: 0, remixes: 0 },
-        signature: 'sim-' + tokenId.slice(2, 18),
-      };
-
-      state.tokens.push(token);
-
-      // Save to localStorage
-      localStorage.setItem('nf-team-tokens', JSON.stringify(state.tokens));
-
-      if (typeof Store !== 'undefined') {
-        Store.set('tokens', state.tokens);
+        showToast('NFT Minted & Signed!', `${token.metadata.title} · ECDSA P-256`);
+      } catch (err) {
+        console.error(err);
+        showToast('Mint failed', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
       }
-      if (typeof EventBus !== 'undefined' && typeof Events !== 'undefined') {
-        EventBus.emit(Events.TOKEN_MINTED, token);
-      }
-
-      btn.disabled = false;
-      btn.innerHTML = '<span class="btn-icon">◆</span> Mint as NFT';
-
-      showToast('NFT Minted! ◆', `"${token.metadata.title}" added to the universe.`);
-      addNFTToGallery(token);
-
-      // Update profile stats
-      const profileMinted = document.getElementById('profile-minted');
-      if (profileMinted) profileMinted.textContent = state.tokens.length;
     });
   });
 }
@@ -832,16 +830,16 @@ function addNFTToGallery(token) {
 
   card.innerHTML = `
     <div class="nft-card-preview" style="background: linear-gradient(135deg, ${colors[0]}, ${colors[1]})">
-      <span class="nft-card-type">${token.type}</span>
+      <span class="nft-card-type">${escapeHTML(token.type)}</span>
     </div>
     <div class="nft-card-body">
-      <h3 class="nft-card-title">${token.metadata.title}</h3>
-      <p class="nft-card-zone">${token.zone.replace('-', ' ')}</p>
+      <h3 class="nft-card-title">${escapeHTML(token.metadata.title)}</h3>
+      <p class="nft-card-zone">${escapeHTML(String(token.zone).replace(/-/g, ' '))}</p>
     </div>
     <div class="nft-card-footer">
       <div class="nft-card-stats">
-        <span>👁️ ${token.interactions.views}</span>
-        <span>🔀 ${token.interactions.forks}</span>
+        <span>👁️ ${escapeHTML(token.interactions.views)}</span>
+        <span>🔀 ${escapeHTML(token.interactions.forks)}</span>
       </div>
       <div class="nft-card-evolution">
         ${token.interactions.forks >= 5 ? '✨' : ''}
@@ -868,7 +866,8 @@ function loadSavedTokens() {
   if (saved) {
     state.tokens = JSON.parse(saved);
     state.tokens.forEach(t => addNFTToGallery(t));
-    document.getElementById('profile-minted').textContent = state.tokens.length;
+    const minted = document.getElementById('profile-minted');
+    if (minted) minted.textContent = state.tokens.length;
   }
 }
 
@@ -1149,11 +1148,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Gallery page
   if (document.querySelectorAll('.filter-chip').length) initGalleryFilters();
-  if (document.getElementById('gallery-grid')) loadSavedTokens();
+  if (document.getElementById('gallery-grid') && !document.querySelector('.gallery-page-body')) loadSavedTokens();
 
   // Profile page
   if (document.getElementById('btn-connect-wallet')) initWallet();
-  if (document.getElementById('btn-export-ledger'))  initLedgerActions();
+  if (document.getElementById('btn-export-ledger') && document.getElementById('gallery-grid')) initLedgerActions();
 
   // Minting (create & profile pages)
   initMinting();

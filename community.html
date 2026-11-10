@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NF-Team — Community</title>
+  <meta name="description" content="Share creations, curate galleries, invite collaborators and jam live with other creators." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .community-page-body { padding-top: var(--nav-height); }
+    .tabs-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: var(--space-lg); }
+    .market-tab.active { background: var(--gradient-brand); color: #fff; }
+    .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg); }
+    .stat-row .glass-panel { padding: var(--space-md); text-align: center; }
+    .stat-row strong { display: block; font-size: 1.6rem; }
+    .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; padding: var(--space-md); margin-bottom: var(--space-lg); }
+    .form-row .tool-group { min-width: 140px; }
+    .market-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .market-actions .input-small { width: 90px; }
+    .simple-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+    .simple-list li { display: flex; justify-content: space-between; gap: 12px; }
+    .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-lg); }
+    .two-col > .glass-panel { padding: var(--space-md); }
+
+    .feed-composer { display: grid; gap: 8px; margin-bottom: var(--space-md); }
+    .feed-list { display: grid; gap: var(--space-sm); max-height: 70vh; overflow: auto; }
+    .feed-post { padding: var(--space-sm) var(--space-md); }
+    .feed-content { margin: 6px 0; white-space: pre-wrap; word-break: break-word; }
+    .feed-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+    .feed-comments { list-style: none; padding: 0; margin: 6px 0; font-size: .9rem; }
+    .feed-comment-form { display: flex; gap: 6px; }
+    .feed-comment-form .input-small { flex: 1; }
+    .panel-gap { padding: var(--space-md); margin-bottom: var(--space-lg); }
+    .chat-log { max-height: 200px; overflow: auto; margin: 8px 0; }
+    .gallery-card { padding: var(--space-md); }
+    .gallery-items { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; }
+    .creator-row { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; padding: 8px 0; border-bottom: var(--border-subtle); }
+    .section-sub { font-size: 1.6rem; margin: var(--space-xl) 0 var(--space-md); }
+
+  </style>
+</head>
+<body class="community-page-body">
+  <canvas id="particle-bg"></canvas>
+
+  <!-- Navigation -->
+  <div id="nav-root"></div>
+
+  <section id="community" class="section">
+    <div class="section-header">
+      <h1 class="section-title">Creator <span class="text-gradient">Community</span></h1>
+      <p class="section-desc">Share work, curate galleries, invite collaborators and jam live.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="glass-panel">
+        <h3 class="sidebar-title">📰 Feed</h3>
+        <form id="form-post" class="feed-composer">
+          <textarea id="post-content" class="form-input" rows="3" maxlength="500" placeholder="What are you creating?" aria-label="New post"></textarea>
+          <button class="btn btn-small btn-primary" type="submit">Post</button>
+        </form>
+        <div id="feed-list" class="feed-list"></div>
+      </div>
+
+      <div>
+        <div class="glass-panel panel-gap">
+          <h3 class="sidebar-title">📡 Live room</h3>
+          <div class="form-row">
+            <input id="room-id-input" class="input-small" placeholder="Room code" aria-label="Room code" maxlength="32" />
+            <button id="btn-room-create" class="btn btn-small btn-primary" type="button">Start</button>
+            <button id="btn-room-join" class="btn btn-small btn-secondary" type="button">Join</button>
+          </div>
+          <p id="room-status" class="tool-value">Offline — rooms connect tabs on this device, or a server set in NF_CONFIG.multiplayerUrl</p>
+          <p id="room-participants" class="tool-value"></p>
+          <ul id="chat-log" class="simple-list chat-log"></ul>
+          <form id="form-chat" class="form-row" hidden><input id="chat-input" class="input-small" maxlength="500" placeholder="Message" aria-label="Chat message" /><button class="btn btn-small btn-secondary">Send</button></form>
+        </div>
+
+        <div class="glass-panel panel-gap">
+          <h3 class="sidebar-title">🤝 Collaboration requests</h3>
+          <form id="form-collab" class="form-row">
+            <select id="collab-to" class="select" aria-label="Creator"></select>
+            <select id="collab-type" class="select" aria-label="Request type"><option value="general">General</option><option value="specific_nft">Remix an NFT</option><option value="room_invite">Room invite</option></select>
+            <input id="collab-message" class="input-small" maxlength="280" placeholder="Message" aria-label="Message" />
+            <button class="btn btn-small btn-primary" type="submit">Invite</button>
+          </form>
+          <h4 class="tool-label">Incoming</h4><ul id="collab-incoming" class="simple-list"></ul>
+          <h4 class="tool-label">Sent</h4><ul id="collab-outgoing" class="simple-list"></ul>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title section-sub">🖼️ Community galleries</h2>
+    <form id="form-gallery" class="form-row glass-panel">
+      <input id="gallery-name" class="input-small" maxlength="60" placeholder="Gallery name" aria-label="Gallery name" required />
+      <input id="gallery-desc" class="input-small" maxlength="200" placeholder="Description" aria-label="Gallery description" />
+      <button class="btn btn-small btn-primary" type="submit">Create gallery</button>
+    </form>
+    <div id="galleries-list" class="gallery-grid"></div>
+
+    <h2 class="section-title section-sub">👩‍🎨 Creators</h2>
+    <div class="two-col">
+      <div id="creators-list" class="glass-panel"></div>
+      <form id="form-bio" class="glass-panel">
+        <h3 class="sidebar-title">Your profile</h3>
+        <textarea id="bio-input" class="form-input" rows="3" maxlength="280" placeholder="Short bio" aria-label="Bio"></textarea>
+        <div class="form-row">
+          <select id="social-platform" class="select" aria-label="Platform"><option value="twitter">X / Twitter</option><option value="github">GitHub</option><option value="website">Website</option></select>
+          <input id="social-url" class="input-small" type="url" placeholder="https://…" aria-label="Link" />
+        </div>
+        <button class="btn btn-small btn-primary" type="submit">Save profile</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div id="footer-root"></div>
+
+  <!-- Toast -->
+  <div id="toast-root"></div>
+
+  <script src="security.js"></script>
+  <script src="events.js"></script>
+  <script src="store.js"></script>
+  <script src="router.js"></script>
+  <script src="ui-enhancements.js"></script>
+  <script src="shared.js"></script>
+  <script src="app.js"></script>
+  <script src="social-feed.js"></script>
+  <script src="community-galleries.js"></script>
+  <script src="collaboration-requests.js"></script>
+  <script src="user-profiles.js"></script>
+  <script src="realtime-multiplayer.js"></script>
+  <script src="modules.js"></script>
+  <script src="pages/community.js"></script>
+  <script src="community.js"></script>
+</body>
+</html>

@@ -13,6 +13,8 @@ const Router = (() => {
     'index.html':    { id: 'universe', title: 'NF-Team — Global NFT Universe Builder' },
     'create.html':   { id: 'create',   title: 'Create — NF-Team' },
     'gallery.html':  { id: 'gallery',  title: 'Gallery — NF-Team' },
+    'market.html':   { id: 'market',   title: 'Market — NF-Team' },
+    'community.html': { id: 'community', title: 'Community — NF-Team' },
     'quests.html':   { id: 'quests',   title: 'Quests — NF-Team' },
     'profile.html':  { id: 'profile',  title: 'Profile — NF-Team' },
     'login.html':    { id: 'login',    title: 'Sign In — NF-Team' },

@@ -489,18 +489,23 @@ class CommunityGalleries {
      * Load galleries from localStorage
      * @private
      */
+    _withDefaults(gallery) {
+        const now = Date.now();
+        return { nfts: [], tags: [], likes: 0, views: 0, followers: 0, createdAt: now, updatedAt: now, ...gallery };
+    }
+
     loadGalleries() {
         try {
             const saved = localStorage.getItem(this.storageKey);
             if (saved) {
                 const galleries = JSON.parse(saved);
                 galleries.forEach(gallery => {
-                    this.galleries.set(gallery.id, gallery);
+                    this.galleries.set(gallery.id, this._withDefaults(gallery));
                 });
             } else {
                 // Initialize default galleries
                 this.defaultGalleries.forEach(gallery => {
-                    this.galleries.set(gallery.id, gallery);
+                    this.galleries.set(gallery.id, this._withDefaults(gallery));
                 });
                 this.saveGalleries();
             }

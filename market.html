@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NF-Team — Market</title>
+  <meta name="description" content="Buy, sell, auction and fractionalise AI-enhanced NFTs with creator royalties." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .market-page-body { padding-top: var(--nav-height); }
+    .tabs-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: var(--space-lg); }
+    .market-tab.active { background: var(--gradient-brand); color: #fff; }
+    .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg); }
+    .stat-row .glass-panel { padding: var(--space-md); text-align: center; }
+    .stat-row strong { display: block; font-size: 1.6rem; }
+    .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; padding: var(--space-md); margin-bottom: var(--space-lg); }
+    .form-row .tool-group { min-width: 140px; }
+    .market-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .market-actions .input-small { width: 90px; }
+    .simple-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+    .simple-list li { display: flex; justify-content: space-between; gap: 12px; }
+    .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-lg); }
+    .two-col > .glass-panel { padding: var(--space-md); }
+
+  </style>
+</head>
+<body class="market-page-body">
+  <canvas id="particle-bg"></canvas>
+
+  <!-- Navigation -->
+  <div id="nav-root"></div>
+
+  <section id="market" class="section">
+    <div class="section-header">
+      <h1 class="section-title">NFT <span class="text-gradient">Market</span></h1>
+      <p class="section-desc">Buy, sell, auction and fractionalise creations. Creators earn royalties on every resale.</p>
+    </div>
+
+    <div class="stat-row">
+      <div class="glass-panel"><strong id="wallet-balance">0</strong><span id="wallet-symbol">NFT</span> balance</div>
+      <div class="glass-panel"><strong id="wallet-staked">0</strong>staked</div>
+      <div class="glass-panel"><strong id="wallet-royalties">0</strong>royalties earned</div>
+      <div class="glass-panel"><strong id="market-volume">0</strong>market volume</div>
+    </div>
+
+    <form id="form-sell" class="form-row glass-panel">
+      <div class="tool-group"><label class="tool-label" for="sell-nft">Your NFT</label><select id="sell-nft" class="select"></select></div>
+      <div class="tool-group"><label class="tool-label" for="sell-mode">Sale type</label>
+        <select id="sell-mode" class="select"><option value="fixed">Fixed price</option><option value="auction">Auction</option><option value="fractional">Fractional</option></select></div>
+      <div class="tool-group"><label class="tool-label" id="sell-price-label" for="sell-price">Price</label><input id="sell-price" type="number" min="0.01" step="0.01" value="10" class="input-small" /></div>
+      <div class="tool-group" id="sell-shares-group" hidden><label class="tool-label" for="sell-shares">Shares</label><input id="sell-shares" type="number" min="2" value="100" class="input-small" /></div>
+      <div class="tool-group"><label class="tool-label" for="sell-royalty">Royalty %</label><input id="sell-royalty" type="number" min="0" max="50" value="10" class="input-small" /></div>
+      <button id="btn-sell" class="btn btn-primary btn-glow" type="submit">List NFT</button>
+    </form>
+
+    <div class="tabs-row" role="tablist">
+      <button class="filter-chip market-tab active" data-panel="listings" type="button">🏷️ Listings</button>
+      <button class="filter-chip market-tab" data-panel="auctions" type="button">🔨 Auctions</button>
+      <button class="filter-chip market-tab" data-panel="fractional" type="button">🧩 Fractional</button>
+      <button class="filter-chip market-tab" data-panel="wallet" type="button">💰 Tokens</button>
+    </div>
+
+    <div id="panel-listings" class="market-panel"><div id="listings-grid" class="gallery-grid"></div></div>
+    <div id="panel-auctions" class="market-panel" hidden><div id="auctions-grid" class="gallery-grid"></div></div>
+    <div id="panel-fractional" class="market-panel" hidden><div id="fractional-grid" class="gallery-grid"></div></div>
+    <div id="panel-wallet" class="market-panel two-col" hidden>
+      <div class="glass-panel">
+        <h3 class="sidebar-title">Stake tokens</h3>
+        <div class="form-row"><input id="stake-amount" type="number" min="1" value="10" class="input-small" aria-label="Amount" />
+          <button id="btn-stake" class="btn btn-small btn-primary" type="button">Stake</button>
+          <button id="btn-unstake" class="btn btn-small btn-secondary" type="button">Unstake</button></div>
+        <h3 class="sidebar-title">Recent transactions</h3>
+        <ul id="tx-list" class="simple-list"></ul>
+      </div>
+      <div class="glass-panel">
+        <h3 class="sidebar-title">Top holders</h3>
+        <ol id="leaderboard" class="simple-list"></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div id="footer-root"></div>
+
+  <!-- Toast -->
+  <div id="toast-root"></div>
+
+  <script src="security.js"></script>
+  <script src="events.js"></script>
+  <script src="store.js"></script>
+  <script src="router.js"></script>
+  <script src="ui-enhancements.js"></script>
+  <script src="shared.js"></script>
+  <script src="app.js"></script>
+  <script src="nft-marketplace.js"></script>
+  <script src="auction-system.js"></script>
+  <script src="royalty-system.js"></script>
+  <script src="fractional-ownership.js"></script>
+  <script src="token-economy.js"></script>
+  <script src="user-profiles.js"></script>
+  <script src="modules.js"></script>
+  <script src="pages/market.js"></script>
+  <script src="market.js"></script>
+</body>
+</html>

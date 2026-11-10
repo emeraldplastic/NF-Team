@@ -2166,3 +2166,40 @@ img[data-src].img-loaded {
   filter: blur(0);
 }
 
+
+/* ══════════════ Module integrations ══════════════ */
+.ai-tool { display: flex; flex-direction: column; gap: 6px; }
+.ai-input { width: 100%; min-width: 0; }
+.live-room { display: grid; gap: 8px; margin-top: var(--space-sm); }
+.live-room-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.suggestion-item {
+  display: block; width: 100%; text-align: left; padding: 10px 12px; margin-bottom: 8px;
+  background: var(--bg-glass); border: var(--border-subtle); border-radius: var(--radius-sm);
+  color: var(--text-primary); font: inherit; line-height: 1.4; cursor: pointer;
+}
+button.suggestion-item:hover { background: var(--bg-glass-hover); border-color: var(--accent-primary); }
+.slot-filled {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; height: 100%; min-height: 160px; border-radius: var(--radius-md); text-align: center; padding: 12px;
+}
+.fusion-slot { cursor: pointer; }
+.fusion-slot:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+.picker-dialog { max-width: 420px; width: 90vw; color: var(--text-primary); border: var(--border-subtle); padding: var(--space-md); }
+.picker-dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
+.picker-list { display: grid; gap: 6px; max-height: 50vh; overflow: auto; margin: 12px 0; }
+.picker-item {
+  text-align: left; padding: 10px 12px; border-radius: var(--radius-sm); border: var(--border-subtle);
+  background: var(--bg-glass); color: var(--text-primary); font: inherit; cursor: pointer;
+}
+.picker-item:hover { border-color: var(--accent-primary); }
+.verified-badge {
+  position: absolute; top: 8px; left: 8px; font-size: 0.7rem; padding: 2px 8px; border-radius: var(--radius-full);
+  background: rgba(59, 165, 92, 0.85); color: #fff;
+}
+.verified-badge.unverified { background: rgba(120, 120, 140, 0.7); }
+.social-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+[hidden] { display: none !important; }
+textarea.form-input, .community-page-body .form-input {
+  width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: var(--border-subtle);
+  background: var(--bg-glass); color: var(--text-primary); font: inherit; resize: vertical;
+}

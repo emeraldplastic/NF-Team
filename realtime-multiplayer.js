@@ -3,6 +3,81 @@
  * Live collaboration rooms with voice chat
  */
 
+/**
+ * Serverless transport: peers in other tabs/windows of the same origin talk over
+ * BroadcastChannel using the same message protocol as the WebSocket server.
+ * Used when no ws:// / wss:// server URL is configured.
+ */
+class LocalRoomTransport {
+    constructor(userId) {
+        this.userId = userId;
+        this.channel = new BroadcastChannel('nfteam-rooms');
+        this.rooms = new Map();
+        this.me = null;
+        this.onopen = null;
+        this.onmessage = null;
+        this.onclose = null;
+        this.onerror = null;
+        this.channel.onmessage = (e) => this._onPeer(e.data);
+        setTimeout(() => this.onopen && this.onopen(), 0);
+    }
+
+    _deliver(msg) {
+        // Async like a real socket, so callers can register listeners after send()
+        setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(msg) }), 0);
+    }
+
+    _broadcast(msg) {
+        this.channel.postMessage({ ...msg, _from: this.userId });
+    }
+
+    send(raw) {
+        const msg = JSON.parse(raw);
+        switch (msg.type) {
+            case 'create_room': {
+                const roomId = 'room_' + Math.random().toString(36).slice(2, 8);
+                const room = { id: roomId, ...msg.config, hostId: msg.userId };
+                this.me = { userId: msg.userId, userName: msg.userName, roomId };
+                this._deliver({ type: 'room_created', roomId, room });
+                this._broadcast({ type: 'participant_joined', roomId, userId: msg.userId, participant: this.me });
+                break;
+            }
+            case 'join_room': {
+                this.me = { userId: msg.userId, userName: msg.userName, roomId: msg.roomId };
+                this._deliver({ type: 'room_joined', success: true, roomId: msg.roomId, room: { id: msg.roomId }, participants: [this.me] });
+                this._broadcast({ type: 'participant_joined', roomId: msg.roomId, userId: msg.userId, participant: this.me, _hello: true });
+                break;
+            }
+            case 'leave_room':
+                this._broadcast({ type: 'participant_left', roomId: msg.roomId, userId: msg.userId });
+                this.me = null;
+                break;
+            case 'chat_message':
+                this._deliver(msg);
+                this._broadcast(msg);
+                break;
+            default:
+                this._broadcast(msg);
+        }
+    }
+
+    _onPeer(msg) {
+        if (!this.me || msg.roomId !== this.me.roomId || msg._from === this.userId) return;
+        if (msg.type === 'participant_joined' && msg._hello) {
+            // Introduce ourselves to the newcomer
+            this._broadcast({ type: 'participant_joined', roomId: this.me.roomId, userId: this.me.userId, participant: this.me });
+        }
+        if (msg.targetUserId && msg.targetUserId !== this.userId) return;
+        const { _from, _hello, ...clean } = msg;
+        this._deliver(clean);
+    }
+
+    close() {
+        this.channel.close();
+        if (this.onclose) this.onclose();
+    }
+}
+
 class RealtimeMultiplayer {
     constructor() {
         this.websocket = null;
@@ -42,32 +117,30 @@ class RealtimeMultiplayer {
             return true;
         }
 
-        try {
-            this.websocket = new WebSocket(this.serverUrl);
-            
+        const useServer = typeof this.serverUrl === 'string' && /^wss?:\/\//.test(this.serverUrl);
+        this.websocket = useServer ? new WebSocket(this.serverUrl) : new LocalRoomTransport(this.userId);
+
+        return new Promise((resolve) => {
             this.websocket.onopen = () => {
                 this.isConnected = true;
                 this._emit('connected');
+                resolve(true);
             };
-            
+
             this.websocket.onmessage = (event) => {
                 this._handleMessage(JSON.parse(event.data));
             };
-            
+
             this.websocket.onclose = () => {
                 this.isConnected = false;
                 this._emit('disconnected');
             };
-            
+
             this.websocket.onerror = (error) => {
                 this._emit('error', error);
+                resolve(false);
             };
-            
-            return true;
-        } catch (error) {
-            this._emit('error', error);
-            return false;
-        }
+        });
     }
 
     /**
