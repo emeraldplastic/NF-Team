@@ -241,6 +241,8 @@ function getNavHTML(activePage) {
     { id: 'universe', label: 'Universe', href: 'index.html' },
     { id: 'create', label: 'Create', href: 'create.html' },
     { id: 'gallery', label: 'Gallery', href: 'gallery.html' },
+    { id: 'market', label: 'Market', href: 'market.html' },
+    { id: 'community', label: 'Community', href: 'community.html' },
     { id: 'quests', label: 'Quests', href: 'quests.html' },
     { id: 'profile', label: 'Profile', href: 'profile.html' },
   ];
@@ -249,8 +251,10 @@ function getNavHTML(activePage) {
     `<li><a href="${p.href}" class="nav-link${p.id === activePage ? ' active' : ''}" data-page="${p.id}">${p.label}</a></li>`
   ).join('');
 
-  const avatarBg = user && user.avatar ? user.avatar : 'linear-gradient(135deg, #00f9ff, #7b2ff7)';
-  const username = user ? user.username : 'Anonymous';
+  const esc = typeof escapeHTML === 'function' ? escapeHTML : (v => String(v).replace(/[&<>"'`]/g, ''));
+  const safeAvatar = user && /^(linear-gradient\([#%(),.\sa-z0-9-]+\)|#[0-9a-f]{3,8})$/i.test(user.avatar || '') ? user.avatar : null;
+  const avatarBg = esc(safeAvatar || 'linear-gradient(135deg, #00f9ff, #7b2ff7)');
+  const username = esc(user ? user.username : 'Anonymous');
 
   return `
     <nav id="main-nav" aria-label="Main navigation">
@@ -303,6 +307,8 @@ function getFooterHTML() {
             <a href="index.html">Universe</a>
             <a href="create.html">Create</a>
             <a href="gallery.html">Gallery</a>
+            <a href="market.html">Market</a>
+            <a href="community.html">Community</a>
             <a href="quests.html">Quests</a>
           </div>
           <div class="footer-col">

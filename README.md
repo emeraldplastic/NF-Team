@@ -17,7 +17,13 @@
 - 🏅 **Quests & Badges** — Gamified creative challenges
 - 🔒 **Time Capsules** — Lock NFTs for scheduled reveals
 - 🌃 **5 Biomes** — Neon District, Pixel Forest, Molten Core, Cosmos Drift, Marble Hall
-- 💎 **Zero-Gas Minting** — Client-side ECDSA signing, no blockchain fees
+- 💎 **Zero-Gas Minting** — Every token is signed with a browser-held ECDSA P-256 key (Web Crypto, non-extractable, stored in IndexedDB) and the gallery verifies signatures
+- 🤖 **AI Studio Tools** — Text-to-art, style transfer, AI music loops, story co-pilot, text-to-3D, smart fusion suggestions (procedural fallbacks; plug in your own API via `configureAPI`)
+- 🧊 **3D Pipeline** — Lighting presets, keyframe animation, physics drop test, export to OBJ / glTF / GLB / USD / FBX, WebXR VR/AR entry
+- 🏪 **Market** (`market.html`) — Fixed-price listings, auctions, fractional shares, creator royalties, token balance & staking
+- 👥 **Community** (`community.html`) — Social feed, curated galleries, collaboration requests, creator profiles, live rooms
+- 📡 **Live Rooms** — Real-time canvas + chat between tabs via BroadcastChannel, or any WebSocket server set in `window.NF_CONFIG.multiplayerUrl`
+- 🔐 **Wallets & Auth** — MetaMask / any EIP-1193 wallet (with Sign-In with Ethereum), salted PBKDF2 password hashing, strict Content-Security-Policy
 
 ## 🚀 Getting Started
 
@@ -57,8 +63,23 @@ NF-Team/
 ├── events.js            # Decoupled publish/subscribe event bus
 ├── router.js            # SPA-like client-side routing & page transitions
 ├── ui-enhancements.js   # Scroll reveals, magnetic buttons, 3D tilt, cursor glow, skeletons
+├── security.js          # escapeHTML, PBKDF2 passwords, ECDSA token signing, EIP-1193 wallet
+├── modules.js           # Shared identity + cross-module hooks (mint → royalties, feed, profile, rewards)
+├── create-studio.js     # Wires AI, 3D, fusion and live-room modules into create.html
+├── market.html / .js    # Marketplace, auctions, fractional ownership, royalties, token economy
+├── community.html / .js # Feed, galleries, collaboration requests, profiles, live rooms
+├── pages/               # Per-page bootstraps (no inline scripts, so CSP can forbid them)
+├── *-*.js feature modules (ai-art-generator, nft-marketplace, physics-engine, …)
 └── README.md            # Platform documentation
 ```
+
+## 🔐 Security notes
+
+- No inline scripts: every page loads `pages/<page>.js`, so `vercel.json` ships `script-src 'self'`.
+- All user-controlled text is escaped before it touches `innerHTML`.
+- Accounts are stored locally with salted PBKDF2-SHA256 (310k iterations); legacy plaintext accounts are upgraded on next sign-in.
+- Google/GitHub buttons are disabled until OAuth client IDs are configured.
+- This is still a client-only app: balances, listings and sessions live in `localStorage`. Move them to a backend before handling real value.
 
 ## 🌍 Biomes
 

@@ -212,25 +212,13 @@
   <!-- Toast -->
   <div id="toast-root"></div>
 
+  <script src="security.js"></script>
   <script src="events.js"></script>
   <script src="store.js"></script>
   <script src="router.js"></script>
   <script src="ui-enhancements.js"></script>
   <script src="shared.js"></script>
   <script src="app.js"></script>
-  <script>
-    // Auth guard
-    const user = requireAuth();
-
-    // Inject nav, footer, toast
-    document.getElementById('nav-root').innerHTML = getNavHTML('universe');
-    document.getElementById('footer-root').innerHTML = getFooterHTML();
-    document.getElementById('toast-root').innerHTML = getToastHTML();
-
-    // Init shared components
-    initParticles();
-    initNav('universe');
-    initPeerCount();
-  </script>
+  <script src="pages/index.js"></script>
 </body>
 </html>

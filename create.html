@@ -114,6 +114,17 @@
               <option value="sketch">Renaissance Sketch</option>
             </select>
           </div>
+          <div class="tool-group ai-tool">
+            <label class="tool-label" for="ai-art-prompt">AI Generate</label>
+            <input type="text" id="ai-art-prompt" class="input-small ai-input" placeholder="e.g. neon city at dusk" maxlength="200" />
+            <select id="ai-art-preset" class="select" aria-label="AI art style preset"></select>
+            <button id="btn-ai-art" class="btn btn-small btn-secondary" type="button">🤖 Generate</button>
+          </div>
+          <div class="tool-group ai-tool">
+            <label class="tool-label" for="style-transfer-select">Style Transfer</label>
+            <select id="style-transfer-select" class="select"></select>
+            <button id="btn-style-transfer" class="btn btn-small btn-secondary" type="button">🖌️ Apply</button>
+          </div>
           <div class="tool-actions">
             <button id="btn-undo" class="icon-btn" aria-label="Undo">↩</button>
             <button id="btn-redo" class="icon-btn" aria-label="Redo">↪</button>
@@ -140,6 +151,14 @@
               <div class="participant-avatar" id="canvas-user-avatar" style="background: linear-gradient(135deg, #00f9ff, #7b2ff7)"></div>
               <span class="participant-name" id="canvas-user-name">You</span>
             </div>
+          </div>
+          <div class="live-room">
+            <input type="text" id="room-id-input" class="input-small" placeholder="Room code" aria-label="Room code" maxlength="32" />
+            <div class="live-room-actions">
+              <button id="btn-room-create" class="btn btn-small btn-primary" type="button">📡 Go Live</button>
+              <button id="btn-room-join" class="btn btn-small btn-secondary" type="button">Join</button>
+            </div>
+            <p id="room-status" class="tool-value">Offline — open another tab to collaborate</p>
           </div>
         </div>
       </div>
@@ -190,6 +209,10 @@
                 <option value="drums">Drums</option>
               </select>
             </div>
+          </div>
+          <div class="tool-group">
+            <label class="tool-label" for="music-mood">AI Mood</label>
+            <select id="music-mood" class="select"></select>
           </div>
           <button id="btn-ai-extend" class="btn btn-secondary">
             <span class="btn-icon">🤖</span> AI Extend Loop
@@ -245,6 +268,10 @@
               <p>Write a paragraph and press Enter to receive AI-generated story continuations.</p>
             </div>
           </div>
+          <button id="btn-ai-continue" class="btn btn-small btn-secondary btn-full" type="button">✨ Suggest continuations</button>
+          <div class="sidebar-divider"></div>
+          <h3 class="sidebar-title">Characters</h3>
+          <div id="story-characters" class="badge-list"></div>
           <div class="sidebar-divider"></div>
           <h3 class="sidebar-title">Story Settings</h3>
           <div class="tool-group">
@@ -273,6 +300,7 @@
           <span id="story-status">Ready</span>
         </div>
         <div class="footer-actions">
+          <button id="btn-story-save" class="btn btn-secondary" type="button">💾 Save Draft</button>
           <button id="btn-mint-story" class="btn btn-primary btn-glow">
             <span class="btn-icon">◆</span> Mint as NFT
           </button>
@@ -305,11 +333,38 @@
             </select>
           </div>
           <button id="btn-generate-mesh" class="btn btn-secondary btn-glow">
-            <span class="btn-icon">🤖</span> Generate 3D Object
+            <span class="btn-icon">🎲</span> Procedural Object
           </button>
+          <div class="sidebar-divider"></div>
+          <div class="tool-group">
+            <label class="tool-label" for="ai-mesh-prompt">AI Text-to-3D</label>
+            <input type="text" id="ai-mesh-prompt" class="input-small ai-input" placeholder="e.g. tall twisted knot" maxlength="200" />
+          </div>
+          <button id="btn-ai-mesh" class="btn btn-secondary btn-glow" type="button">
+            <span class="btn-icon">🤖</span> Generate with AI
+          </button>
+          <div class="tool-group">
+            <label class="tool-label" for="mesh-lighting">Lighting</label>
+            <select id="mesh-lighting" class="select"></select>
+          </div>
+          <div class="tool-group">
+            <label class="tool-label" for="mesh-animation">Animation</label>
+            <select id="mesh-animation" class="select"></select>
+          </div>
+          <button id="btn-mesh-physics" class="btn btn-small btn-secondary" type="button">🪂 Physics drop test</button>
+          <div class="tool-group">
+            <label class="tool-label" for="mesh-export-format">Export</label>
+            <select id="mesh-export-format" class="select"></select>
+            <button id="btn-mesh-export" class="btn btn-small btn-secondary" type="button">⬇ Download</button>
+          </div>
+          <div class="live-room-actions">
+            <button id="btn-vr" class="btn btn-small btn-secondary" type="button" disabled>🥽 Enter VR</button>
+            <button id="btn-ar" class="btn btn-small btn-secondary" type="button" disabled>📱 View in AR</button>
+          </div>
         </div>
         <div class="mesh-viewport-wrapper">
           <canvas id="mesh-viewport" class="mesh-viewport" aria-label="3D object viewport"></canvas>
+          <canvas id="ai-mesh-viewport" class="mesh-viewport" aria-label="AI 3D model viewport" hidden></canvas>
           <div class="mesh-overlay-info glass-panel">
             <span id="mesh-poly-count">Polygons: —</span>
             <span id="mesh-vertex-count">Vertices: —</span>
@@ -377,6 +432,11 @@
           <button id="btn-fuse" class="btn btn-primary btn-glow btn-full">
             <span class="btn-icon">⚡</span> Fuse NFTs
           </button>
+          <div class="sidebar-divider"></div>
+          <h3 class="sidebar-title">Smart Suggestions</h3>
+          <div id="fusion-suggestions" class="suggestion-list">
+            <p class="tool-value">Pick two NFTs to see compatibility and AI suggestions.</p>
+          </div>
         </div>
       </div>
       <div class="studio-footer">
@@ -392,46 +452,41 @@
     </div>
   </section>
 
+  <dialog id="fusion-picker" class="picker-dialog glass-panel" aria-label="Choose an NFT">
+    <h3 class="sidebar-title">Choose an NFT</h3>
+    <div id="fusion-picker-list" class="picker-list"></div>
+    <button id="fusion-picker-close" class="btn btn-small btn-secondary" type="button">Cancel</button>
+  </dialog>
+
   <!-- Toast -->
   <div id="toast-root"></div>
 
+  <script src="security.js"></script>
   <script src="events.js"></script>
   <script src="store.js"></script>
   <script src="router.js"></script>
   <script src="ui-enhancements.js"></script>
   <script src="shared.js"></script>
   <script src="app.js"></script>
-  <script>
-    // Auth guard
-    const user = requireAuth();
-
-    // Inject nav + toast
-    document.getElementById('nav-root').innerHTML = getNavHTML('create');
-    document.getElementById('toast-root').innerHTML = getToastHTML();
-
-    // Init
-    initParticles();
-    initNav('create');
-    initPeerCount();
-
-    // Set user avatar in canvas participants
-    if (user) {
-      const avatarEl = document.getElementById('canvas-user-avatar');
-      const nameEl = document.getElementById('canvas-user-name');
-      if (avatarEl && user.avatar) avatarEl.style.background = user.avatar;
-      if (nameEl) nameEl.textContent = user.username;
-    }
-
-    // Handle hash-based tab selection (e.g. create.html#music)
-    function activateTabFromHash() {
-      const hash = window.location.hash.replace('#', '');
-      if (hash) {
-        const tab = document.querySelector(`.studio-tab[data-studio="${hash}"]`);
-        if (tab) tab.click();
-      }
-    }
-    activateTabFromHash();
-    window.addEventListener('hashchange', activateTabFromHash);
-  </script>
+  <script src="ai-art-generator.js"></script>
+  <script src="style-transfer-api.js"></script>
+  <script src="ai-music-composer.js"></script>
+  <script src="story-co-pilot.js"></script>
+  <script src="3d-model-ai.js"></script>
+  <script src="3d-animation.js"></script>
+  <script src="lighting-system.js"></script>
+  <script src="physics-engine.js"></script>
+  <script src="export-formats.js"></script>
+  <script src="vr-ar-support.js"></script>
+  <script src="smart-fusion-suggestions.js"></script>
+  <script src="realtime-multiplayer.js"></script>
+  <script src="royalty-system.js"></script>
+  <script src="user-profiles.js"></script>
+  <script src="token-economy.js"></script>
+  <script src="community-galleries.js"></script>
+  <script src="social-feed.js"></script>
+  <script src="modules.js"></script>
+  <script src="create-studio.js"></script>
+  <script src="pages/create.js"></script>
 </body>
 </html>
