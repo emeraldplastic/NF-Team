@@ -27,19 +27,39 @@
 
 ## 🚀 Getting Started
 
-### Option 1: Open directly
-Just open `index.html` in your browser — no build step required!
+Requires Node 20+.
 
-### Option 2: Use a local server
 ```bash
-npx serve .
+npm install
+npm run dev          # Vite dev server on http://localhost:5173
+npm run build        # production build to dist/
+npm run preview      # serve dist/ on http://localhost:4173
+npm run lint && npm test && npm run test:e2e
+```
+
+### Optional integrations (see `.env.example`)
+
+| Variable | Enables |
+|---|---|
+| `OPENAI_API_KEY` | AI art, story co-pilot, fusion suggestions via `/api/ai/*` (keys stay server-side; procedural fallback otherwise) |
+| `PINATA_JWT` | Pins minted artwork + ERC-721 metadata to IPFS via `/api/ipfs/pin` |
+| `VITE_MULTIPLAYER_URL` | `wss://` URL of `server/multiplayer-server.js` for cross-device live rooms (default: tabs on one device) |
+
+### Multiplayer server
+
+Vercel functions can't hold WebSockets, so run the relay on any Node host (Render, Fly.io, Railway):
+
+```bash
+PORT=8787 ALLOWED_ORIGINS=https://your-app.vercel.app npm run server
 ```
 
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| **UI** | Vanilla HTML + CSS + JavaScript |
+| **UI** | HTML + CSS + ES modules, bundled with Vite |
+| **API** | Vercel serverless functions (Node 20) |
+| **Tests** | Vitest + Playwright, GitHub Actions CI |
 | **Design** | Glass-morphism, CSS custom properties, micro-animations |
 | **Typography** | Google Fonts (Outfit, Inter, JetBrains Mono) |
 | **Graphics** | HTML5 Canvas, procedural generation |
@@ -50,32 +70,23 @@ npx serve .
 
 ```
 NF-Team/
-├── index.html           # Main universe & biome explorer
-├── create.html          # Multi-modal creation studio (Canvas, Music, Story, 3D, Fusion)
-├── gallery.html         # NFT showcase with filtering, sorting, & search
-├── quests.html          # Gamified challenges, achievements, & leaderboards
-├── profile.html         # User identity, wallet management, & minted collection
-├── login.html           # Web3 & social authentication portal
-├── styles.css           # Complete design system, glassmorphism, & animations
-├── shared.js            # Shared navigation, auth guards, particle background, toasts
-├── app.js               # Studios logic, procedural generators, & canvas engines
-├── store.js             # Reactive centralized state management & persistence
-├── events.js            # Decoupled publish/subscribe event bus
-├── router.js            # SPA-like client-side routing & page transitions
-├── ui-enhancements.js   # Scroll reveals, magnetic buttons, 3D tilt, cursor glow, skeletons
-├── security.js          # escapeHTML, PBKDF2 passwords, ECDSA token signing, EIP-1193 wallet
-├── modules.js           # Shared identity + cross-module hooks (mint → royalties, feed, profile, rewards)
-├── create-studio.js     # Wires AI, 3D, fusion and live-room modules into create.html
-├── market.html / .js    # Marketplace, auctions, fractional ownership, royalties, token economy
-├── community.html / .js # Feed, galleries, collaboration requests, profiles, live rooms
-├── pages/               # Per-page bootstraps (no inline scripts, so CSP can forbid them)
-├── *-*.js feature modules (ai-art-generator, nft-marketplace, physics-engine, …)
-└── README.md            # Platform documentation
+├── *.html               # Vite multi-page entries (index, login, create, gallery, market, community, profile, quests)
+├── styles.css           # Design system
+├── src/
+│   ├── core/            # storage (only localStorage access), store, events, router, security, shared UI,
+│   │                    # asset-store (IndexedDB artwork + ERC-721 metadata), ai-client, config, modules
+│   ├── app/             # Former app.js split by feature + create-studio, market, community controllers
+│   ├── features/        # 21 feature modules (AI, 3D, marketplace, social, multiplayer…)
+│   └── pages/           # One ES-module entry per page
+├── api/                 # Vercel serverless functions: status, ai/[kind], ipfs/pin
+├── server/              # WebSocket multiplayer relay
+├── tests/unit/          # Vitest (security, storage/store, market settlement, multiplayer, API)
+└── tests/e2e/           # Playwright (auth, studios → mint → gallery, market, community, all pages)
 ```
 
 ## 🔐 Security notes
 
-- No inline scripts: every page loads `pages/<page>.js`, so `vercel.json` ships `script-src 'self'`.
+- No inline scripts: every page loads one bundled ES module, so `vercel.json` ships `script-src 'self'`.
 - All user-controlled text is escaped before it touches `innerHTML`.
 - Accounts are stored locally with salted PBKDF2-SHA256 (310k iterations); legacy plaintext accounts are upgraded on next sign-in.
 - Google/GitHub buttons are disabled until OAuth client IDs are configured.
