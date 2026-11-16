@@ -2,6 +2,7 @@
 
 > Create, remix, and collect AI-enhanced NFTs in a shared, ever-expanding universe. Real-time collaborative art, music, stories & 3D — all in your browser.
 
+[![CI](https://github.com/emeraldplastic/NF-Team/actions/workflows/ci.yml/badge.svg)](https://github.com/emeraldplastic/NF-Team/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Platform](https://img.shields.io/badge/platform-Browser-brightgreen)
 ![Gas](https://img.shields.io/badge/gas-Zero-orange)
@@ -103,6 +104,10 @@ Each zone applies a unique color palette and AI style to your creations:
 | 🔥 Molten Core | Lava & embers | Red → Orange |
 | 🌌 Cosmos Drift | Deep space | Indigo → Violet |
 | 🏛️ Marble Hall | Classical renaissance | Gold → Cream |
+
+## 🤝 Contributing
+
+Contributions are welcome! Please check out our [Contributing Guide](CONTRIBUTING.md) for details on development setup, coding guidelines, testing, and submitting pull requests.
 
 ## 📜 License
 
